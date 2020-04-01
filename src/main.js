@@ -368,7 +368,7 @@ for (let extraList of movieExtraLists) {
 }
 
 // Рендер попапа
-render(mainlement, createMoviePopupTemplate());
+render(footerElement, createMoviePopupTemplate(), `afterend`);
 
 // Рендер статистики в подвале
 render(footerStatisticsElement, createStatisticsTemplate());
