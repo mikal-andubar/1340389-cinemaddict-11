@@ -129,13 +129,13 @@ const createMovieCardTemplate = () => (
  * Отрисовка кнопки "Load More"
  * @return {string}
  */
-const createLoadMoreBtnTemplate = () => (`<button class="films-list__show-more">Show more</button>`);
+const createLoadMoreBtnTemplate = () => `<button class="films-list__show-more">Show more</button>`;
 
 /**
  * Отрисовка статистики
  * @return {string}
  */
-const createStatisticsTemplate = () => (`<p>130 291 movies inside</p>`);
+const createStatisticsTemplate = () => `<p>130 291 movies inside</p>`;
 
 /**
  * Отрисовка попапа с детальной информацией о фильме
@@ -313,6 +313,17 @@ const createMoviePopupTemplate = () => (
   </section>`
 );
 
+/**
+ * Рендер нескольких карточек фильмов
+ * @param {Element} container
+ * @param {number} count
+ */
+const renderMovieList = (container, count) => {
+  for (let i = 0; i < count; i++) {
+    render(container, createMovieCardTemplate());
+  }
+};
+
 // Рендер аватара и звания пользователя в шапке
 render(headerElement, createUserProfileTemplate());
 
@@ -336,9 +347,7 @@ const movieListContainer = mainlement.querySelector(`.films`);
 const movieListElement = movieListContainer.querySelector(`.films-list__container`);
 
 // Рендер карточек фильмов
-for (let i = 0; i < MOVIE_COUNT; i++) {
-  render(movieListElement, createMovieCardTemplate());
-}
+renderMovieList(movieListElement, MOVIE_COUNT);
 
 // Реднер кнопки "Load more"
 render(movieListElement, createLoadMoreBtnTemplate(), `afterend`);
@@ -355,10 +364,11 @@ const movieExtraLists = movieListContainer.querySelectorAll(`.films-list--extra 
 
 // Наполнение дополнительных списков карточками фильмов
 for (let extraList of movieExtraLists) {
-  for (let i = 0; i < MOVIE_EXTRA_COUNT; i++) {
-    render(extraList, createMovieCardTemplate());
-  }
+  renderMovieList(extraList, MOVIE_EXTRA_COUNT);
 }
+
+// Рендер попапа
+render(mainlement, createMoviePopupTemplate());
 
 // Рендер статистики в подвале
 render(footerStatisticsElement, createStatisticsTemplate());
