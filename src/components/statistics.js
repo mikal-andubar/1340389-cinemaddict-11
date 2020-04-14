@@ -1,5 +1,6 @@
 /**
  * Отрисовка статистики
+ * @param {number} movieCount
  * @return {string}
  */
-export const createStatisticsTemplate = () => `<p>130 291 movies inside</p>`;
+export const createStatisticsTemplate = (movieCount) => `<p>${movieCount} movies inside</p>`;
