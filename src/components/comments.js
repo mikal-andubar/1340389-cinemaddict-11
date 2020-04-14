@@ -28,16 +28,16 @@ export const emojis = [
  * @param {{}} comment
  * @return {string}
  */
-const createCommentMarkup = (comment) => (
+const createCommentMarkup = ({emoji, text, author, date}) => (
   `<li class="film-details__comment">
     <span class="film-details__comment-emoji">
-      <img src="${comment.emoji.image}" width="55" height="55" alt="emoji-${comment.emoji.emotion}">
+      <img src="${emoji.image}" width="55" height="55" alt="emoji-${emoji.emotion}">
     </span>
     <div>
-      <p class="film-details__comment-text">${comment.text}</p>
+      <p class="film-details__comment-text">${text}</p>
       <p class="film-details__comment-info">
-        <span class="film-details__comment-author">${comment.author}</span>
-        <span class="film-details__comment-day">${formatTime(comment.date)}</span>
+        <span class="film-details__comment-author">${author}</span>
+        <span class="film-details__comment-day">${formatTime(date)}</span>
         <button class="film-details__comment-delete">Delete</button>
       </p>
     </div>
@@ -49,10 +49,10 @@ const createCommentMarkup = (comment) => (
  * @param {{}} emoji
  * @return {string}
  */
-const createEmojiMarkup = (emoji) => (
-  `<input class="film-details__emoji-item visually-hidden" name="comment-emoji" type="radio" id="emoji-${emoji.emotion}" value="${emoji.emotion}" />
-    <label class="film-details__emoji-label" for="emoji-${emoji.emotion}">
-      <img src="${emoji.image}" width="30" height="30" alt="emoji">
+const createEmojiMarkup = ({emotion, image}) => (
+  `<input class="film-details__emoji-item visually-hidden" name="comment-emoji" type="radio" id="emoji-${emotion}" value="${emotion}" />
+    <label class="film-details__emoji-label" for="emoji-${emotion}">
+      <img src="${image}" width="30" height="30" alt="emoji">
     </label>`
 );
 

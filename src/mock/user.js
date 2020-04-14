@@ -1,25 +1,28 @@
 import {increaseInt} from "../utils";
 
 /**
+ * Рейтинг пользователя в зависимости от количества просмотренных фильмов
+ * @type {}
+ */
+const userRatings = {
+  [`Novice`]: 1,
+  [`Fan`]: 11,
+  [`Movie Buff`]: 21,
+};
+
+/**
  * Возвращает строку с рейтингом по переданному количеству
  * @param {number} count
  * @return {string}
  */
 const getRating = (count) => {
-  let rating;
-  switch (true) {
-    case (count >= 21):
-      rating = `Movie Buff`;
+  let rating = ``;
+  for (const key in userRatings) {
+    if (count >= userRatings[key]) {
+      rating = key;
+    } else {
       break;
-    case (count >= 11):
-      rating = `Fan`;
-      break;
-    case (count >= 1):
-      rating = `Novice`;
-      break;
-    default:
-      rating = ``;
-      break;
+    }
   }
   return rating;
 };

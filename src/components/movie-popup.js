@@ -1,8 +1,3 @@
-/**
- * Отрисовка попапа с детальной информацией о фильме
- * @param {{}} movie
- * @return {string}
- */
 import {MONTH_NAMES} from "../constatnts";
 import {formatDuration} from "../utils";
 import {createCommentsTemplate} from "./comments";
