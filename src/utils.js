@@ -75,7 +75,7 @@ export const generateRandomText = (minSentencesQty, maxSentencesQty) => {
 
   let text = ``;
   for (let i = 0; i < sentencesQty; i++) {
-    text = text + getRandomArrayItem(sentences) + `. `;
+    text = `${text} ${getRandomArrayItem(sentences)}. `;
   }
 
   return text.trim();
@@ -86,7 +86,7 @@ export const generateRandomText = (minSentencesQty, maxSentencesQty) => {
  * @param {number} duration
  * @return {string}
  */
-export const formatDuration = (duration) => Math.floor(duration / 60) + `h ` + duration % 60 + `m`;
+export const formatDuration = (duration) => `${Math.floor(duration / 60)}h ${duration % 60}m`;
 
 /**
  * Обрезка строки до заданного лимита
@@ -94,7 +94,7 @@ export const formatDuration = (duration) => Math.floor(duration / 60) + `h ` + d
  * @param {number} limit
  * @return {string}
  */
-export const clipText = (text, limit) => text.length > limit ? text.slice(0, limit) + `...` : text;
+export const clipText = (text, limit) => text.length > limit ? `${text.slice(0, limit)}...` : text;
 
 
 /**
@@ -117,11 +117,11 @@ export const generatePerson = () => {
  * @return {[]}
  */
 export const getPersonsList = (count) => {
-  let list = [];
+  let generatedPersons = [];
   for (let i = 0; i < count; i++) {
-    list.push(generatePerson());
+    generatedPersons.push(generatePerson());
   }
-  return list;
+  return generatedPersons;
 };
 
 /**

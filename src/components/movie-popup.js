@@ -41,8 +41,8 @@ export const createMoviePopupTemplate = (movie) => {
   } = movie;
 
   const dateString = `${releaseDate.getDate()} ${MONTH_NAMES[releaseDate.getMonth()]} ${releaseDate.getFullYear()}`;
-  const writersList = writers.map((person) => person.firstName + ` ` + person.secondName).join(`, `).trim();
-  const actorsList = actors.map((person) => person.firstName + ` ` + person.secondName).join(`, `).trim();
+  const writersList = writers.map((person) => `${person.firstName} ${person.secondName}`).join(`, `).trim();
+  const actorsList = actors.map((person) => `${person.firstName} ${person.secondName}`).join(`, `).trim();
 
   const watchlistChecked = isInWatchList ? `checked` : ``;
   const watchedChecked = isWatched ? `checked` : ``;
@@ -59,7 +59,7 @@ export const createMoviePopupTemplate = (movie) => {
           <div class="film-details__poster">
             <img class="film-details__poster-img" src="${poster}" alt="">
 
-            <p class="film-details__age">${age + `+`}</p>
+            <p class="film-details__age">${age}+}</p>
           </div>
 
           <div class="film-details__info">
@@ -77,7 +77,7 @@ export const createMoviePopupTemplate = (movie) => {
             <table class="film-details__table">
               <tr class="film-details__row">
                 <td class="film-details__term">Director</td>
-                <td class="film-details__cell">${director.firstName + ` ` + director.secondName}</td>
+                <td class="film-details__cell">${director.firstName} ${director.secondName}</td>
               </tr>
               <tr class="film-details__row">
                 <td class="film-details__term">Writers</td>

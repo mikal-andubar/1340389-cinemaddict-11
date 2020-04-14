@@ -1,6 +1,30 @@
 import {increaseInt} from "../utils";
 
 /**
+ * Возвращает строку с рейтингом по переданному количеству
+ * @param {number} count
+ * @return {string}
+ */
+const getRating = (count) => {
+  let rating;
+  switch (true) {
+    case (count >= 21):
+      rating = `Movie Buff`;
+      break;
+    case (count >= 11):
+      rating = `Fan`;
+      break;
+    case (count >= 1):
+      rating = `Novice`;
+      break;
+    default:
+      rating = ``;
+      break;
+  }
+  return rating;
+};
+
+/**
  * Вычисляет рейтинг пользователя
  * @param {[]} movies
  * @return {string|string}
@@ -9,20 +33,8 @@ const calculateUserRating = (movies) => {
   const ratingCalc = movies.reduce((ratingAcc, movie) => {
     const count = movie.isWatched ? increaseInt(ratingAcc.count) : ratingAcc.count;
 
-    let rating = ratingAcc.rating;
-
-    if (count >= 1) {
-      rating = `Novice`;
-    }
-    if (count >= 11) {
-      rating = `Fan`;
-    }
-    if (count >= 21) {
-      rating = `Movie Buff`;
-    }
-
     return {
-      rating,
+      rating: getRating(count),
       count,
     };
   }, {rating: ``, count: 0});

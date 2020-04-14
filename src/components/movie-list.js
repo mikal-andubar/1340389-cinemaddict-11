@@ -1,4 +1,4 @@
-import {clipText} from "../utils";
+import {clipText, formatDuration} from "../utils";
 import {MOVIE_COUNT} from "../constatnts";
 
 /**
@@ -7,9 +7,19 @@ import {MOVIE_COUNT} from "../constatnts";
  * @return {string}
  */
 const createMovieCardMarkup = (movie) => {
-  const {title, rating, releaseDate, duration, genres, poster, description, comments, isInWatchList, isWatched, isFavorite} = movie;
-
-  const durationString = Math.floor(duration / 60) + `h ` + duration % 60 + `m`;
+  const {
+    title,
+    rating,
+    releaseDate,
+    duration,
+    genres,
+    poster,
+    description,
+    comments,
+    isInWatchList,
+    isWatched,
+    isFavorite
+  } = movie;
 
   return (
     `<article class="film-card">
@@ -17,7 +27,7 @@ const createMovieCardMarkup = (movie) => {
       <p class="film-card__rating">${rating}</p>
       <p class="film-card__info">
         <span class="film-card__year">${releaseDate.getFullYear()}</span>
-        <span class="film-card__duration">${durationString}</span>
+        <span class="film-card__duration">${formatDuration(duration)}</span>
         <span class="film-card__genre">${genres[0]}</span>
       </p>
       <img src="${poster}" alt="" class="film-card__poster">

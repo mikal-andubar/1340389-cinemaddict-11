@@ -5,16 +5,12 @@ import {FILTER_NAMES} from "../constatnts";
  * @param {{}} filter
  * @return {string}
  */
-const createFilterMarkup = (filter) => {
-  const {name, label, count} = filter;
-
-  return (
-    `<a href="#${name}" class="main-navigation__item">
-        ${label}
-        ${name !== FILTER_NAMES.ALL ? `<span class="main-navigation__item-count">${count}</span>` : ``}
-    </a>`
-  );
-};
+const createFilterMarkup = ({name, label, count}) => (
+  `<a href="#${name}" class="main-navigation__item">
+      ${label}
+      ${name !== FILTER_NAMES.ALL ? `<span class="main-navigation__item-count">${count}</span>` : ``}
+  </a>`
+);
 
 /**
  * Отрисовка фильтров сайта

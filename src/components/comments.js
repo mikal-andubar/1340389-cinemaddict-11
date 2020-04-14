@@ -4,7 +4,7 @@ import {formatTime} from "../utils";
  * Массив объектов комментариев
  * @type {({image: string, emotion: string}|{image: string, emotion: string}|{image: string, emotion: string}|{image: string, emotion: string})[]}
  */
-export const emojiSet = [
+export const emojis = [
   {
     emotion: `smile`,
     image: `./images/emoji/smile.png`
@@ -83,7 +83,7 @@ export const createCommentsTemplate = (comments) => (
       <textarea class="film-details__comment-input" placeholder="Select reaction below and write comment here" name="comment"></textarea>
     </label>
 
-    ${createEmojiListTemplate(emojiSet)}
+    ${createEmojiListTemplate(emojis)}
 
   </div>`
 );

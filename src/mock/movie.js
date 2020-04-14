@@ -44,7 +44,7 @@ const generateTitle = () => {
   const titleFirstWords = [`Great`, `Spider`, `Starship`, `Star`, `Time`, `Little`, `Universal`, `Lost`];
   const titleSecondWords = [`Gatsby`, `Man`, `Troopers`, `Wars`, `Machine`, `China`, `Soldier`, `Ark`];
 
-  return getRandomArrayItem(titleFirstWords) + ` ` + getRandomArrayItem(titleSecondWords) + (getRandomBool() ? ` ` + getRandomInt(2, 6) : ``);
+  return `${getRandomArrayItem(titleFirstWords)} ${getRandomArrayItem(titleSecondWords)}${(getRandomBool() ? ` ${getRandomInt(2, 6)}` : ``)}`;
 };
 
 /**
@@ -53,11 +53,11 @@ const generateTitle = () => {
  * @return {[]}
  */
 const getGenresList = (count) => {
-  let list = [];
+  let movieGenres = [];
   for (let i = 0; i < count; i++) {
-    list.push(getRandomArrayItem(genres));
+    movieGenres.push(getRandomArrayItem(genres));
   }
-  return list;
+  return movieGenres;
 };
 
 /**

@@ -44,7 +44,7 @@ export const FILTER_NAMES = {
  * @type {{}}
  */
 export const MOVIE_COUNT = {
-  TOTAL: 34,
+  TOTAL: 24,
   ON_START: 5,
   ON_BTN: 5,
   EXTRA: 2
