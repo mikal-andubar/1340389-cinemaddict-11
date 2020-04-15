@@ -1,18 +1,19 @@
-import {createUserProfileTemplate} from "./components/profile";
-import {createFiltersTemplate} from "./components/filters";
-import {createSortingTemplate} from "./components/sorting";
-import {
-  createMovieList,
-  createMovieListContainer,
-  createMovieListTemplate, getMostCommentedMovies,
-  getTopRatedMovies,
-} from "./components/movie-list";
-import {createMoviePopupTemplate} from "./components/movie-popup";
-import {createStatisticsTemplate} from "./components/statistics";
-import {MOVIE_COUNT, RENDER_PLACE} from "./constatnts";
-import {generateMovies} from "./mock/movie";
+import Filter from "./components/filter";
+import MovieBoard from "./components/movie-board";
+import MovieCard from "./components/movie-card";
+import MovieList from "./components/movie-list";
+import MoviePopup from "./components/movie-popup";
+import ShowMoreButton from "./components/show-more-button";
+import Sort from "./components/sort";
+import Statistics from "./components/statistics";
+import UserProfile from "./components/user-profile";
+
 import {generateFilters} from "./mock/filters";
+import {generateMovies} from "./mock/movie";
 import {generateUser} from "./mock/user";
+import {render} from "./utils";
+
+import {MOVIE_COUNT} from "./constatnts";
 
 /**
  * Вся шапка сайта
@@ -42,121 +43,168 @@ const footerStatisticsElement = footerElement.querySelector(`.footer__statistics
  * Массив объектов с фильмами
  * @type {{}[]}
  */
-const movies = generateMovies(MOVIE_COUNT.TOTAL);
-
-/**
- * Фильмы с самым высоким рейтингом
- * @type {{}[]}
- */
-const topRatedMovies = getTopRatedMovies(movies);
-
-/**
- * Фильмы с самым большим количеством комментариев
- * @type {{}[]}
- */
-const mostCommentedMovies = getMostCommentedMovies(movies);
-
-/**
- * Количество отображенных карточек на данный момент
- * @type {number}
- */
-let shownMovies = MOVIE_COUNT.ON_START;
+const generatedMovies = generateMovies(MOVIE_COUNT.TOTAL);
 
 /**
  * Профиль пользователя
- * @type {}
+ * @type {UserProfile}
  */
-const user = generateUser(movies);
+const userProfile = new UserProfile(generateUser(generatedMovies));
+
 
 /**
- * Функция рендера
- * @param {Element} container
- * @param {string} template
- * @param {string} place
+ * Поиск фильмов с наивысшими оценками
+ * @param {[]} movies
+ * @param {number} count
+ * @return {[]}
  */
-const render = (container, template, place = RENDER_PLACE.BEFORE_END) => {
-  container.insertAdjacentHTML(place, template);
+const getTopRatedMovies = (movies, count = MOVIE_COUNT.EXTRA) => movies.slice().sort((a, b) => a.rating > b.rating ? -1 : 1).slice(0, count);
+
+/**
+ * Поиск фильмов с самым большим количеством комментариев
+ * @param {[]} movies
+ * @param {number} count
+ * @return {[]}
+ */
+const getMostCommentedMovies = (movies, count = MOVIE_COUNT.EXTRA) => movies.slice().sort((a, b) => a.comments.length > b.comments.length ? -1 : 1).slice(0, count);
+
+/**
+ * Рендер карточки фильма
+ * @param {Element} movieListElement
+ * @param {{}} movie
+ */
+const renderMovieCard = (movieListElement, movie) => {
+  /**
+   * Обработчик события клика по карточке фильма
+   */
+  const onPopupOpenClick = () => {
+    footerElement.appendChild(moviePopup.getElement());
+  };
+
+  /**
+   * Обработчик события клика по кнопке закрытия попапа
+   */
+  const onPopupCloseClick = () => {
+    footerElement.removeChild(moviePopup.getElement());
+  };
+
+  // Создание карточки фильма
+  const movieCard = new MovieCard(movie);
+  // Добавление обработчика события клика к заголовку, постеру и строке с информацией о комментариях
+  const openElements = movieCard.getElement().querySelectorAll(`.film-card__title, .film-card__poster, .film-card__comments`);
+  openElements.forEach(
+      (openElement) => openElement.addEventListener(`click`, onPopupOpenClick)
+  );
+
+  // Созадание попапа
+  const moviePopup = new MoviePopup(movie);
+  // Добавление обработчика события клика к кнопке закрытия
+  const closePopupBtn = moviePopup.getElement().querySelector(`.film-details__close-btn`);
+  closePopupBtn.addEventListener(`click`, onPopupCloseClick);
+
+  // Рендер карточки фильма
+  render(movieListElement, movieCard.getElement());
+};
+
+/**
+ * Рендер списка фильмов
+ * @param {MovieList} movieList
+ * @param {[]} movies
+ */
+const renderMovieList = (movieList, movies) => {
+  movies.forEach((movie) => renderMovieCard(movieList.getElement().querySelector(`.films-list__container`), movie));
+};
+
+/**
+ * Рендер доски со списками фильмов
+ * @param {MovieBoard} movieBoard
+ * @param {[]} movies
+ */
+const renderMovieBoard = (movieBoard, movies) => {
+  /**
+   * Обработчик события клика по кнопке "Show More"
+   */
+  const onShowMoreBtnClick = () => {
+    const previouslyShown = shownMovies;
+    shownMovies = shownMovies + MOVIE_COUNT.ON_BTN;
+
+    renderMovieList(mainMovieList, movies.slice(previouslyShown, shownMovies));
+
+    if (shownMovies >= MOVIE_COUNT.TOTAL) {
+      showMoreBtn.getElement().remove();
+      showMoreBtn.removeElement();
+    }
+  };
+
+  // Рендер доски со списками фильмов
+  render(mainElement, movieBoard.getElement());
+
+  /**
+   * Элемент доски со списками фильмов
+   * @type {Element}
+   */
+  const movieBoardElement = mainElement.querySelector(`.films`);
+
+  /**
+   * Главный список фильмов
+   * @type {MovieList}
+   */
+  const mainMovieList = new MovieList(`All movies. Upcoming`);
+
+  /**
+   * Список фильмов с самым высоким рейтингом
+   * @type {MovieList}
+   */
+  const topRatedList = new MovieList(`Top rated`, true);
+
+  /**
+   * Список самых обсуждаемых фильмов
+   * @type {MovieList}
+   */
+  const mostCommentedList = new MovieList(`Most commented`, true);
+
+  /**
+   * Количество отображенных карточек на данный момент
+   * @type {number}
+   */
+  let shownMovies = MOVIE_COUNT.ON_START;
+
+  // Рендер основного списка фильмов и карточек в него
+  render(movieBoardElement, mainMovieList.getElement());
+  renderMovieList(mainMovieList, movies.slice(0, shownMovies));
+
+  /**
+   * Кнопка "Show More"
+   * @type {ShowMoreButton}
+   */
+  const showMoreBtn = new ShowMoreButton();
+
+  render(mainMovieList.getElement(), showMoreBtn.getElement());
+
+  showMoreBtn.getElement().addEventListener(`click`, onShowMoreBtnClick);
+
+  // Рендер самых высокооцененных фильмов
+  render(movieBoardElement, topRatedList.getElement());
+  renderMovieList(topRatedList, getTopRatedMovies(movies));
+
+  // Рендер самых обсуждаемых фильмов
+  render(movieBoardElement, mostCommentedList.getElement());
+  renderMovieList(mostCommentedList, getMostCommentedMovies(movies));
 };
 
 // Рендер аватара и звания пользователя в шапке
-render(headerElement, createUserProfileTemplate(user));
+render(headerElement, userProfile.getElement());
 
 // Рендер меню фильтров и сортировки
-render(mainElement, createFiltersTemplate(generateFilters(movies)));
-render(mainElement, createSortingTemplate());
-
-// Рендер контейнера для списков фильмов
-render(mainElement, createMovieListContainer());
+render(mainElement, new Filter(generateFilters(generatedMovies)).getElement());
+render(mainElement, new Sort().getElement());
 
 /**
- * Общий контейнер для списков фильмов. Оъявляем здесь, так как соответствующий элемент только что отрисовался
- * @type {Element}
+ * Доска со списками фильмов
+ * @type {MovieBoard}
  */
-const movieListContainer = mainElement.querySelector(`.films`);
-
-// Рендер основного списка фильмов
-render(movieListContainer, createMovieListTemplate(`All movies. Upcoming`));
-
-/**
- * Основной список фильмов
- * @type {Element | any}
- */
-const mainMovieList = movieListContainer.querySelector(`.films-list__container`);
-
-// Рендер части фильмов в основной список
-render(mainMovieList, createMovieList(movies.slice(0, MOVIE_COUNT.ON_START)));
-
-/**
- * Кнопка "Load More"
- * @type {Element}
- */
-const loadMoreBtn = movieListContainer.querySelector(`.films-list__show-more`);
-
-// Рендер контейнеров для дополнительных списков
-render(movieListContainer, createMovieListTemplate(`Top rated`, true));
-render(movieListContainer, createMovieListTemplate(`Most commented`, true));
-
-/**
- * Все (2 штуки) дополнительные списки фильмов
- * @type {NodeListOf<Element>}
- */
-const movieExtraLists = movieListContainer.querySelectorAll(`.films-list--extra .films-list__container`);
-
-// Наполнение дополнительных списков карточками фильмов
-render(movieExtraLists[0], createMovieList(topRatedMovies));
-render(movieExtraLists[1], createMovieList(mostCommentedMovies));
-
-// Рендер попапа
-render(footerElement, createMoviePopupTemplate(movies[0]), RENDER_PLACE.AFTER_END);
-
-/**
- * Попап с детальной информацией о фильме
- * @type {Element}
- */
-const moviePopupElement = document.querySelector(`.film-details`);
-
-/**
- * Кнопка закрытия попапа
- * @type {Element}
- */
-const closePopupBtn = moviePopupElement.querySelector(`.film-details__close-btn`);
-
-// Обработчик события по клику на кнопку закрытия попапа
-closePopupBtn.addEventListener(`click`, () => {
-  moviePopupElement.classList.add(`visually-hidden`);
-});
+const movieBoard = new MovieBoard();
+renderMovieBoard(movieBoard, generatedMovies);
 
 // Рендер статистики в подвале
-render(footerStatisticsElement, createStatisticsTemplate(movies.length));
-
-// Обработчик нажания на кнопу "Load More"
-loadMoreBtn.addEventListener(`click`, () => {
-  const previouslyShown = shownMovies;
-  shownMovies = shownMovies + MOVIE_COUNT.ON_BTN;
-
-  render(mainMovieList, createMovieList(movies.slice(previouslyShown, shownMovies)));
-
-  if (shownMovies >= MOVIE_COUNT.TOTAL) {
-    loadMoreBtn.remove();
-  }
-});
+render(footerStatisticsElement, new Statistics(generatedMovies.length).getElement());

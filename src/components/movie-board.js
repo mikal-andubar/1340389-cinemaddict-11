@@ -1,31 +1,28 @@
 import {createElement} from "../utils";
 
 /**
- * Отрисовка статистики
- * @param {number} movieCount
+ * Создание общего контейнера для всех списков фильмов
  * @return {string}
  */
-const createStatisticsTemplate = (movieCount) => `<p>${movieCount} movies inside</p>`;
+const createMovieBoardTemplate = () => `<section class="films"></section>`;
 
 /**
- * Класс для статистики
+ * Класс для общего контейнера всех списков фильмов
  */
-export default class Statistics {
+export default class MovieBoard {
   /**
    * Конструктор класса
-   * @param {number} movieCount
    */
-  constructor(movieCount) {
-    this._movieCount = movieCount;
+  constructor() {
     this._element = null;
   }
 
   /**
-   * Возвращает шаблон статистики
+   * Возвращает шаблон общего контейнера для всех списков фильмов
    * @return {string}
    */
   getTemplate() {
-    return createStatisticsTemplate(this._movieCount);
+    return createMovieBoardTemplate();
   }
 
   /**

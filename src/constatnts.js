@@ -4,9 +4,9 @@
  */
 export const RENDER_PLACE = {
   BEFORE_END: `beforeend`,
-  BEFORE_START: `beforestart`,
+  BEFORE_BEGIN: `beforebegin`,
   AFTER_END: `afterend`,
-  AFTER_START: `afterstart`,
+  AFTER_BEGIN: `afterbegin`,
 };
 
 /**

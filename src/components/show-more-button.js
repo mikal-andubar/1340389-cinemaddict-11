@@ -1,31 +1,24 @@
 import {createElement} from "../utils";
 
-/**
- * Отрисовка статистики
- * @param {number} movieCount
- * @return {string}
- */
-const createStatisticsTemplate = (movieCount) => `<p>${movieCount} movies inside</p>`;
+const createShowMoreButtonTemplate = () => `<button class="films-list__show-more">Show more</button>`;
 
 /**
- * Класс для статистики
+ * Класс для кнопки "Show More"
  */
-export default class Statistics {
+export default class ShowMoreButton {
   /**
    * Конструктор класса
-   * @param {number} movieCount
    */
-  constructor(movieCount) {
-    this._movieCount = movieCount;
+  constructor() {
     this._element = null;
   }
 
   /**
-   * Возвращает шаблон статистики
+   * Возвращает шаблон кнопки "Show More"
    * @return {string}
    */
   getTemplate() {
-    return createStatisticsTemplate(this._movieCount);
+    return createShowMoreButtonTemplate();
   }
 
   /**

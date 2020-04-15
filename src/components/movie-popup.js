@@ -1,5 +1,5 @@
 import {MONTH_NAMES} from "../constatnts";
-import {formatDuration} from "../utils";
+import {createElement, formatDuration} from "../utils";
 import {createCommentsTemplate} from "./comments";
 
 /**
@@ -14,7 +14,7 @@ const createGenresListTemplate = (genres) => genres.map((genre) => `<span class=
  * @param {{}} movie
  * @return {string}
  */
-export const createMoviePopupTemplate = (movie) => {
+const createMoviePopupTemplate = (movie) => {
   const {
     title,
     originalTitle,
@@ -129,3 +129,45 @@ export const createMoviePopupTemplate = (movie) => {
   </section>`
   );
 };
+
+/**
+ * Класс для попапа с детальной информацией о фильме
+ */
+export default class MoviePopup {
+  /**
+   * Конструктор класса
+   * @param {{}} movie
+   */
+  constructor(movie) {
+    this._movie = movie;
+    this._element = null;
+  }
+
+  /**
+   * Возвращает шаблон попапа
+   * @return {string}
+   */
+  getTemplate() {
+    return createMoviePopupTemplate(this._movie);
+  }
+
+  /**
+   * Возвращает элемент DOM
+   * @return {null}
+   */
+  getElement() {
+    if (!this._element) {
+      this._element = createElement(this.getTemplate());
+    }
+
+    return this._element;
+  }
+
+  /**
+   * Очищает элемент DOM
+   */
+  removeElement() {
+    this._element = null;
+  }
+}
+
