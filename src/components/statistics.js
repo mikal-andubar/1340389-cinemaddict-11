@@ -10,7 +10,7 @@ const createStatisticsTemplate = (movieCount) => `<p>${movieCount} movies inside
 /**
  * Класс для статистики
  */
-export default class Stat {
+export default class Statistics {
   /**
    * Конструктор класса
    * @param {number} movieCount

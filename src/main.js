@@ -1,17 +1,19 @@
-import UserProfile from "./components/user-profile";
 import Filter from "./components/filter";
-import Sort from "./components/sort";
 import MovieBoard from "./components/movie-board";
+import MovieCard from "./components/movie-card";
 import MovieList from "./components/movie-list";
 import MoviePopup from "./components/movie-popup";
-import Stat from "./components/stat";
-import {MOVIE_COUNT} from "./constatnts";
-import {generateMovies} from "./mock/movie";
+import ShowMoreButton from "./components/show-more-button";
+import Sort from "./components/sort";
+import Statistics from "./components/statistics";
+import UserProfile from "./components/user-profile";
+
 import {generateFilters} from "./mock/filters";
+import {generateMovies} from "./mock/movie";
 import {generateUser} from "./mock/user";
 import {render} from "./utils";
-import MovieCard from "./components/movie-card";
-import ShowMoreButton from "./components/show-more-button";
+
+import {MOVIE_COUNT} from "./constatnts";
 
 /**
  * Вся шапка сайта
@@ -56,7 +58,7 @@ const userProfile = new UserProfile(generateUser(generatedMovies));
  * @param {number} count
  * @return {[]}
  */
-export const getTopRatedMovies = (movies, count = MOVIE_COUNT.EXTRA) => movies.slice().sort((a, b) => a.rating > b.rating ? -1 : 1).slice(0, count);
+const getTopRatedMovies = (movies, count = MOVIE_COUNT.EXTRA) => movies.slice().sort((a, b) => a.rating > b.rating ? -1 : 1).slice(0, count);
 
 /**
  * Поиск фильмов с самым большим количеством комментариев
@@ -64,7 +66,7 @@ export const getTopRatedMovies = (movies, count = MOVIE_COUNT.EXTRA) => movies.s
  * @param {number} count
  * @return {[]}
  */
-export const getMostCommentedMovies = (movies, count = MOVIE_COUNT.EXTRA) => movies.slice().sort((a, b) => a.comments.length > b.comments.length ? -1 : 1).slice(0, count);
+const getMostCommentedMovies = (movies, count = MOVIE_COUNT.EXTRA) => movies.slice().sort((a, b) => a.comments.length > b.comments.length ? -1 : 1).slice(0, count);
 
 /**
  * Рендер карточки фильма
@@ -205,4 +207,4 @@ const movieBoard = new MovieBoard();
 renderMovieBoard(movieBoard, generatedMovies);
 
 // Рендер статистики в подвале
-render(footerStatisticsElement, new Stat(generatedMovies.length).getElement());
+render(footerStatisticsElement, new Statistics(generatedMovies.length).getElement());
