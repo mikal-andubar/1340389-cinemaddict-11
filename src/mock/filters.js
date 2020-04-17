@@ -2,10 +2,10 @@ import {FILTER_NAMES} from "../constatnts";
 import {increaseInt} from "../utils";
 
 const EMPTY_FILTERS = [
-  {name: FILTER_NAMES.ALL, count: 0},
-  {name: FILTER_NAMES.WATCHLIST, count: 0},
-  {name: FILTER_NAMES.HISTORY, count: 0},
-  {name: FILTER_NAMES.FAVORITES, count: 0},
+  {name: FILTER_NAMES.ALL, label: `All movies`, count: 0},
+  {name: FILTER_NAMES.WATCHLIST, label: `Watchlist`, count: 0},
+  {name: FILTER_NAMES.HISTORY, label: `History`, count: 0},
+  {name: FILTER_NAMES.FAVORITES, label: `Favorites`, count: 0},
 ];
 
 /**

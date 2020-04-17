@@ -1,18 +1,29 @@
 import {createElement} from "../utils";
 
 /**
+ * Типы списка фильмов: основной, дополнительный, пустой
+ * @type {{}}
+ */
+export const MovieListType = {
+  EMPTY: `empty`,
+  MAIN: `main`,
+  EXTRA: `extra`,
+};
+
+/**
  * Создание списка фильмов
  * @param {string} title
- * @param {boolean} isExtra
+ * @param {string} listType
  * @return {string}
  */
-const createMovieListTemplate = (title, isExtra = false) => (
-  `<section class="films-list${isExtra ? `--extra` : ``}">
-    <h2 class="films-list__title ${isExtra ? `` : `visually-hidden`}">${title}</h2>
-    <div class="films-list__container">
-    </div>
-  </section>`
-);
+const createMovieListTemplate = (title, listType = MovieListType.MAIN) => {
+  return (
+    `<section class="films-list${listType === MovieListType.EXTRA ? `--${listType}` : ``}">
+      <h2 class="films-list__title ${listType === MovieListType.MAIN ? `visually-hidden` : ``}">${title}</h2>
+      ${listType === MovieListType.EMPTY ? `` : `<div class="films-list__container"></div>`}
+    </section>`
+  );
+};
 
 /**
  * Класс для списка фильмов
@@ -21,12 +32,12 @@ export default class MovieList {
   /**
    * Конструктор класса
    * @param {string} title
-   * @param {boolean} isExtra
+   * @param {string} listType
    */
-  constructor(title, isExtra = false) {
+  constructor(title, listType = MovieListType.MAIN) {
     this._element = null;
     this._title = title;
-    this._isExtra = isExtra;
+    this._listType = listType;
   }
 
   /**
@@ -34,7 +45,7 @@ export default class MovieList {
    * @return {string}
    */
   getTemplate() {
-    return createMovieListTemplate(this._title, this._isExtra);
+    return createMovieListTemplate(this._title, this._listType);
   }
 
   /**
