@@ -1,7 +1,7 @@
 import Filter from "./components/filter";
 import MovieBoard from "./components/movie-board";
 import MovieCard from "./components/movie-card";
-import MovieList from "./components/movie-list";
+import MovieList, {MovieListType} from "./components/movie-list";
 import MoviePopup from "./components/movie-popup";
 import ShowMoreButton from "./components/show-more-button";
 import Sort from "./components/sort";
@@ -13,7 +13,7 @@ import {generateMovies} from "./mock/movie";
 import {generateUser} from "./mock/user";
 import {render} from "./utils";
 
-import {MOVIE_COUNT, MOVIE_LIST_TYPE} from "./constatnts";
+import {KEY_CODE, MOVIE_COUNT} from "./constatnts";
 
 /**
  * Вся шапка сайта
@@ -98,7 +98,7 @@ const renderMovieCard = (movieListElement, movie) => {
   };
 
   const onEscBtnDown = (event) => {
-    const isEscBtn = event.key === `Escape` || event.key === `Esc`;
+    const isEscBtn = event.key === KEY_CODE.ESCAPE || event.key === KEY_CODE.ESC;
 
     if (isEscBtn) {
       hidePopup();
@@ -172,19 +172,19 @@ const renderMovieBoard = (movieBoard, movies) => {
    * Пустой список фильмов
    * @type {MovieList}
    */
-  const emptyMovieList = new MovieList(`There are no movies in our database`, MOVIE_LIST_TYPE.EMPTY);
+  const emptyMovieList = new MovieList(`There are no movies in our database`, MovieListType.EMPTY);
 
   /**
    * Список фильмов с самым высоким рейтингом
    * @type {MovieList}
    */
-  const topRatedList = new MovieList(`Top rated`, MOVIE_LIST_TYPE.EXTRA);
+  const topRatedList = new MovieList(`Top rated`, MovieListType.EXTRA);
 
   /**
    * Список самых обсуждаемых фильмов
    * @type {MovieList}
    */
-  const mostCommentedList = new MovieList(`Most commented`, MOVIE_LIST_TYPE.EXTRA);
+  const mostCommentedList = new MovieList(`Most commented`, MovieListType.EXTRA);
 
   // Рендер пустого списка фильмов
   if (movies.length === 0) {

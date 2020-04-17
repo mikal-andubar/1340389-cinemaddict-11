@@ -30,7 +30,7 @@ export const MONTH_NAMES = [
 
 /**
  * Константы названий фильтров
- * @type {}
+ * @type {{}}
  */
 export const FILTER_NAMES = {
   ALL: `all`,
@@ -51,11 +51,10 @@ export const MOVIE_COUNT = {
 };
 
 /**
- * Типы списка фильмов: основной, дополнительный, пустой
+ * Коды клавиш клавиатуры для обработчиков событий
  * @type {{}}
  */
-export const MOVIE_LIST_TYPE = {
-  EMPTY: `empty`,
-  MAIN: `main`,
-  EXTRA: `extra`,
+export const KEY_CODE = {
+  ESCAPE: `Escape`,
+  ESC: `Esc`
 };
