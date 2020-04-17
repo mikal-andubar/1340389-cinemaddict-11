@@ -44,8 +44,18 @@ export const FILTER_NAMES = {
  * @type {{}}
  */
 export const MOVIE_COUNT = {
-  TOTAL: 24,
+  TOTAL: 20,
   ON_START: 5,
   ON_BTN: 5,
   EXTRA: 2
+};
+
+/**
+ * Типы списка фильмов: основной, дополнительный, пустой
+ * @type {{}}
+ */
+export const MOVIE_LIST_TYPE = {
+  EMPTY: `empty`,
+  MAIN: `main`,
+  EXTRA: `extra`,
 };

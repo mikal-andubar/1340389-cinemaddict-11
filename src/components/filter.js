@@ -4,10 +4,11 @@ import {createElement} from "../utils";
 /**
  * Создание разметки фильтра
  * @param {{}} filter
+ * @param {number} index
  * @return {string}
  */
-const createFilterMarkup = ({name, label, count}) => (
-  `<a href="#${name}" class="main-navigation__item">
+const createFilterMarkup = ({name, label, count}, index) => (
+  `<a href="#${name}" class="main-navigation__item ${index === 0 ? `main-navigation__item--active` : ``}">
       ${label}
       ${name !== FILTER_NAMES.ALL ? `<span class="main-navigation__item-count">${count}</span>` : ``}
   </a>`

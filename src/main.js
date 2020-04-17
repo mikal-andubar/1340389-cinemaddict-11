@@ -13,7 +13,7 @@ import {generateMovies} from "./mock/movie";
 import {generateUser} from "./mock/user";
 import {render} from "./utils";
 
-import {MOVIE_COUNT} from "./constatnts";
+import {MOVIE_COUNT, MOVIE_LIST_TYPE} from "./constatnts";
 
 /**
  * Вся шапка сайта
@@ -75,17 +75,34 @@ const getMostCommentedMovies = (movies, count = MOVIE_COUNT.EXTRA) => movies.sli
  */
 const renderMovieCard = (movieListElement, movie) => {
   /**
+   * Скрывает попап
+   */
+  const hidePopup = () => {
+    footerElement.removeChild(moviePopup.getElement());
+    document.removeEventListener(`keydown`, onEscBtnDown);
+  };
+
+  /**
    * Обработчик события клика по карточке фильма
    */
   const onPopupOpenClick = () => {
     footerElement.appendChild(moviePopup.getElement());
+    document.addEventListener(`keydown`, onEscBtnDown);
   };
 
   /**
    * Обработчик события клика по кнопке закрытия попапа
    */
   const onPopupCloseClick = () => {
-    footerElement.removeChild(moviePopup.getElement());
+    hidePopup();
+  };
+
+  const onEscBtnDown = (event) => {
+    const isEscBtn = event.key === `Escape` || event.key === `Esc`;
+
+    if (isEscBtn) {
+      hidePopup();
+    }
   };
 
   // Создание карточки фильма
@@ -111,7 +128,7 @@ const renderMovieCard = (movieListElement, movie) => {
  * @param {MovieList} movieList
  * @param {[]} movies
  */
-const renderMovieList = (movieList, movies) => {
+const renderMovieList = (movieList, movies = []) => {
   movies.forEach((movie) => renderMovieCard(movieList.getElement().querySelector(`.films-list__container`), movie));
 };
 
@@ -152,16 +169,28 @@ const renderMovieBoard = (movieBoard, movies) => {
   const mainMovieList = new MovieList(`All movies. Upcoming`);
 
   /**
+   * Пустой список фильмов
+   * @type {MovieList}
+   */
+  const emptyMovieList = new MovieList(`There are no movies in our database`, MOVIE_LIST_TYPE.EMPTY);
+
+  /**
    * Список фильмов с самым высоким рейтингом
    * @type {MovieList}
    */
-  const topRatedList = new MovieList(`Top rated`, true);
+  const topRatedList = new MovieList(`Top rated`, MOVIE_LIST_TYPE.EXTRA);
 
   /**
    * Список самых обсуждаемых фильмов
    * @type {MovieList}
    */
-  const mostCommentedList = new MovieList(`Most commented`, true);
+  const mostCommentedList = new MovieList(`Most commented`, MOVIE_LIST_TYPE.EXTRA);
+
+  // Рендер пустого списка фильмов
+  if (movies.length === 0) {
+    render(movieBoardElement, emptyMovieList.getElement());
+    return;
+  }
 
   /**
    * Количество отображенных карточек на данный момент
