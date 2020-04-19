@@ -1,4 +1,4 @@
-import {generatePerson, generateRandomDate, generateRandomText, getRandomArrayItem} from "../utils";
+import {generatePerson, generateRandomDate, generateRandomText, getRandomArrayItem} from "../utils/common";
 import {emojis} from "../components/comments";
 
 /**

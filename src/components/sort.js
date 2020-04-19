@@ -1,4 +1,4 @@
-import {createElement} from "../utils";
+import AbstractComponent from "./abstract-component";
 
 /**
  * Отрисовка списка фильтров
@@ -15,38 +15,12 @@ const createSortingTemplate = () => (
 /**
  * Класс для элементов сортировки
  */
-export default class Sort {
-  /**
-   * Конструктор класса
-   */
-  constructor() {
-    this._element = null;
-  }
-
+export default class Sort extends AbstractComponent {
   /**
    * Возвращает шаблон элементов сортировки
    * @return {string}
    */
   getTemplate() {
     return createSortingTemplate();
-  }
-
-  /**
-   * Возвращает элемент DOM
-   * @return {null}
-   */
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-
-    return this._element;
-  }
-
-  /**
-   * Очищает элемент DOM
-   */
-  removeElement() {
-    this._element = null;
   }
 }

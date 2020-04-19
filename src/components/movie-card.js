@@ -1,4 +1,5 @@
-import {clipText, createElement, formatDuration} from "../utils";
+import {clipText, formatDuration} from "../utils/common";
+import AbstractComponent from "./abstract-component";
 
 /**
  * Отрисовка карточки фильма
@@ -50,14 +51,15 @@ const createMovieCardTemplate = (movie) => {
 /**
  * Класс для карточки фильма
  */
-export default class MovieCard {
+export default class MovieCard extends AbstractComponent {
   /**
    * Конструктор класса
    * @param {{}} movie
    */
   constructor(movie) {
+    super();
+
     this._movie = movie;
-    this._element = null;
   }
 
   /**
@@ -69,21 +71,13 @@ export default class MovieCard {
   }
 
   /**
-   * Возвращает элемент DOM
-   * @return {null}
+   * Добавление обработчика события клика к заголовку, постеру и строке с информацией о комментариях
+   * @param {function} handler
    */
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-
-    return this._element;
-  }
-
-  /**
-   * Очищает элемент DOM
-   */
-  removeElement() {
-    this._element = null;
+  setOnPopupOpenClickHandler(handler) {
+    const openElements = this.getElement().querySelectorAll(`.film-card__title, .film-card__poster, .film-card__comments`);
+    openElements.forEach(
+        (openElement) => openElement.addEventListener(`click`, handler)
+    );
   }
 }

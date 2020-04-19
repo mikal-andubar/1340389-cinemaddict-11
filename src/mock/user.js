@@ -1,4 +1,4 @@
-import {increaseInt} from "../utils";
+import {increaseInt} from "../utils/common";
 
 /**
  * Рейтинг пользователя в зависимости от количества просмотренных фильмов

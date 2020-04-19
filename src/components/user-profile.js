@@ -1,4 +1,4 @@
-import {createElement} from "../utils";
+import AbstractComponent from "./abstract-component";
 
 /**
  * Отрисовка звания пользователя и аватара
@@ -15,14 +15,15 @@ const createUserProfileTemplate = ({rating, avatar}) => (
 /**
  * Класс для профиля пользователя
  */
-export default class UserProfile {
+export default class UserProfile extends AbstractComponent {
   /**
    * Конструктор класса
    * @param {{}} user
    */
   constructor(user) {
+    super();
+
     this._user = user;
-    this._element = null;
   }
 
   /**
@@ -31,25 +32,6 @@ export default class UserProfile {
    */
   getTemplate() {
     return createUserProfileTemplate(this._user);
-  }
-
-  /**
-   * Возвращает элемент DOM
-   * @return {null}
-   */
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-
-    return this._element;
-  }
-
-  /**
-   * Очищает элемент DOM
-   */
-  removeElement() {
-    this._element = null;
   }
 }
 

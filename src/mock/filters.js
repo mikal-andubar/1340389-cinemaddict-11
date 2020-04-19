@@ -1,5 +1,5 @@
 import {FILTER_NAMES} from "../constatnts";
-import {increaseInt} from "../utils";
+import {increaseInt} from "../utils/common";
 
 const EMPTY_FILTERS = [
   {name: FILTER_NAMES.ALL, label: `All movies`, count: 0},

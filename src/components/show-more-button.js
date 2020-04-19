@@ -1,18 +1,11 @@
-import {createElement} from "../utils";
+import AbstractComponent from "./abstract-component";
 
 const createShowMoreButtonTemplate = () => `<button class="films-list__show-more">Show more</button>`;
 
 /**
  * Класс для кнопки "Show More"
  */
-export default class ShowMoreButton {
-  /**
-   * Конструктор класса
-   */
-  constructor() {
-    this._element = null;
-  }
-
+export default class ShowMoreButton extends AbstractComponent {
   /**
    * Возвращает шаблон кнопки "Show More"
    * @return {string}
@@ -22,21 +15,10 @@ export default class ShowMoreButton {
   }
 
   /**
-   * Возвращает элемент DOM
-   * @return {null}
+   * Добавляет обработчик события клика по кнопке
+   * @param {function} handler
    */
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-
-    return this._element;
-  }
-
-  /**
-   * Очищает элемент DOM
-   */
-  removeElement() {
-    this._element = null;
+  setOnClickHandler(handler) {
+    this.getElement().addEventListener(`click`, handler);
   }
 }

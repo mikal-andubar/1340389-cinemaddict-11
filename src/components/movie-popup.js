@@ -1,6 +1,7 @@
 import {MONTH_NAMES} from "../constatnts";
-import {createElement, formatDuration} from "../utils";
+import {formatDuration} from "../utils/common";
 import {createCommentsTemplate} from "./comments";
+import AbstractComponent from "./abstract-component";
 
 /**
  * Создание шаблона списка жанров
@@ -133,14 +134,15 @@ const createMoviePopupTemplate = (movie) => {
 /**
  * Класс для попапа с детальной информацией о фильме
  */
-export default class MoviePopup {
+export default class MoviePopup extends AbstractComponent {
   /**
    * Конструктор класса
    * @param {{}} movie
    */
   constructor(movie) {
+    super();
+
     this._movie = movie;
-    this._element = null;
   }
 
   /**
@@ -152,22 +154,12 @@ export default class MoviePopup {
   }
 
   /**
-   * Возвращает элемент DOM
-   * @return {null}
+   * Добавление обработчика события клика к кнопке закрытия
+   * @param {function} handler
    */
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-
-    return this._element;
-  }
-
-  /**
-   * Очищает элемент DOM
-   */
-  removeElement() {
-    this._element = null;
+  setOnPopupCloseClickHandler(handler) {
+    const closePopupBtn = this.getElement().querySelector(`.film-details__close-btn`);
+    closePopupBtn.addEventListener(`click`, handler);
   }
 }
 

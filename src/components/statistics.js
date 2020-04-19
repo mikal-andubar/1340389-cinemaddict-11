@@ -1,4 +1,4 @@
-import {createElement} from "../utils";
+import AbstractComponent from "./abstract-component";
 
 /**
  * Отрисовка статистики
@@ -10,14 +10,15 @@ const createStatisticsTemplate = (movieCount) => `<p>${movieCount} movies inside
 /**
  * Класс для статистики
  */
-export default class Statistics {
+export default class Statistics extends AbstractComponent {
   /**
    * Конструктор класса
    * @param {number} movieCount
    */
   constructor(movieCount) {
+    super();
+
     this._movieCount = movieCount;
-    this._element = null;
   }
 
   /**
@@ -26,24 +27,5 @@ export default class Statistics {
    */
   getTemplate() {
     return createStatisticsTemplate(this._movieCount);
-  }
-
-  /**
-   * Возвращает элемент DOM
-   * @return {null}
-   */
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-
-    return this._element;
-  }
-
-  /**
-   * Очищает элемент DOM
-   */
-  removeElement() {
-    this._element = null;
   }
 }
