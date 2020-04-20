@@ -6,6 +6,7 @@ import MovieList, {MovieListType} from "../components/movie-list";
 import ShowMoreButton from "../components/show-more-button";
 import MovieBoard from "../components/movie-board";
 import Statistics from "../components/statistics";
+import {increaseInt} from "../utils/common";
 
 /**
  * Поиск фильмов с наивысшими оценками
@@ -76,6 +77,7 @@ export default class PageController {
      */
     this._footerElement = this._container.nextElementSibling;
   }
+
   /**
    * Рендер карточки фильма
    * @param {Element} movieListElement
@@ -105,6 +107,10 @@ export default class PageController {
       hidePopup();
     };
 
+    /**
+     * Обработчик нажатия на кнопку Escape
+     * @param {KeyboardEvent} event
+     */
     const onEscBtnDown = (event) => {
       const isEscBtn = event.key === KEY_CODE.ESCAPE || event.key === KEY_CODE.ESC;
 
@@ -144,7 +150,7 @@ export default class PageController {
      */
     const onShowMoreBtnClick = () => {
       const previouslyShown = shownMovies;
-      shownMovies = shownMovies + MOVIE_COUNT.ON_BTN;
+      shownMovies = increaseInt(shownMovies, MOVIE_COUNT.ON_BTN);
 
       this._renderMovieList(this._mainMovieList, movies.slice(previouslyShown, shownMovies));
 

@@ -1,7 +1,9 @@
-import {MONTH_NAMES} from "../constatnts";
-import {formatDuration} from "../utils/common";
-import {createCommentsTemplate} from "./comments";
 import AbstractComponent from "./abstract-component";
+import Comment from "./comment";
+
+import {formatDuration} from "../utils/common";
+
+import {MONTH_NAMES} from "../constatnts";
 
 /**
  * Создание шаблона списка жанров
@@ -13,9 +15,10 @@ const createGenresListTemplate = (genres) => genres.map((genre) => `<span class=
 /**
  * Создание шаблона с разметкой для попапа
  * @param {{}} movie
+ * @param {string} commentsTemplate
  * @return {string}
  */
-const createMoviePopupTemplate = (movie) => {
+const createMoviePopupTemplate = (movie, commentsTemplate) => {
   const {
     title,
     originalTitle,
@@ -30,7 +33,6 @@ const createMoviePopupTemplate = (movie) => {
     poster,
     description,
     age,
-    comments,
     isInWatchList,
     isWatched,
     isFavorite
@@ -123,7 +125,7 @@ const createMoviePopupTemplate = (movie) => {
 
       <div class="form-details__bottom-container">
         <section class="film-details__comments-wrap">
-          ${createCommentsTemplate(comments)}
+          ${commentsTemplate}
         </section>
       </div>
     </form>
@@ -143,6 +145,7 @@ export default class MoviePopup extends AbstractComponent {
     super();
 
     this._movie = movie;
+    this._commentComponent = new Comment(this._movie.comments);
   }
 
   /**
@@ -150,7 +153,9 @@ export default class MoviePopup extends AbstractComponent {
    * @return {string}
    */
   getTemplate() {
-    return createMoviePopupTemplate(this._movie);
+    const commentsTemplate = this._commentComponent.getTemplate();
+
+    return createMoviePopupTemplate(this._movie, commentsTemplate);
   }
 
   /**

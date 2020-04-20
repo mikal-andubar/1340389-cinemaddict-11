@@ -2,13 +2,14 @@ import Filter from "./components/filter";
 import Sort from "./components/sort";
 import UserProfile from "./components/user-profile";
 
+import PageController from "./controllers/page";
+
 import {generateFilters} from "./mock/filters";
 import {generateMovies} from "./mock/movie";
 import {generateUser} from "./mock/user";
 import {render} from "./utils/render";
 
 import {MOVIE_COUNT} from "./constatnts";
-import PageController from "./controllers/page";
 
 /**
  * Вся шапка сайта
@@ -21,7 +22,6 @@ const headerElement = document.querySelector(`.header`);
  * @type {Element}
  */
 const mainElement = document.querySelector(`.main`);
-
 
 /**
  * Массив объектов с фильмами

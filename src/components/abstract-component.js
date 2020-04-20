@@ -17,9 +17,14 @@ export default class AbstractComponent {
 
   /**
    * Абстрактный метод для возвращения шаблона
+   * @return {string}
    */
   getTemplate() {
-    throw new Error(`Метод должен быть переопределен в классе-потомке!`);
+    if (this instanceof AbstractComponent) {
+      throw new Error(`Метод должен быть переопределен в классе-потомке!`);
+    }
+
+    return ``;
   }
 
   /**

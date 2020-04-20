@@ -1,5 +1,9 @@
 import AbstractComponent from "./abstract-component";
 
+/**
+ * Создает шаблон разметки для кнопки "Show More"
+ * @return {string}
+ */
 const createShowMoreButtonTemplate = () => `<button class="films-list__show-more">Show more</button>`;
 
 /**

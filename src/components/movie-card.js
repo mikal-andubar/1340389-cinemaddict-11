@@ -1,5 +1,6 @@
-import {clipText, formatDuration} from "../utils/common";
 import AbstractComponent from "./abstract-component";
+
+import {clipText, formatDuration} from "../utils/common";
 
 /**
  * Отрисовка карточки фильма

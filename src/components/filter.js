@@ -1,5 +1,6 @@
-import {FILTER_NAMES} from "../constatnts";
 import AbstractComponent from "./abstract-component";
+
+import {FILTER_NAMES} from "../constatnts";
 
 /**
  * Создание разметки фильтра
