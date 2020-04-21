@@ -1,12 +1,14 @@
-import {KEY_CODE, MOVIE_COUNT} from "../constatnts";
 import MovieCard from "../components/movie-card";
 import MoviePopup from "../components/movie-popup";
-import {remove, componentRender} from "../utils/render";
 import MovieList, {MovieListType} from "../components/movie-list";
 import ShowMoreButton from "../components/show-more-button";
 import MovieBoard from "../components/movie-board";
 import Statistics from "../components/statistics";
+
+import {remove, componentRender} from "../utils/render";
 import {increaseInt} from "../utils/common";
+
+import {KEY_CODE, MOVIE_COUNT} from "../constatnts";
 
 /**
  * Поиск фильмов с наивысшими оценками

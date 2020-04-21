@@ -1,5 +1,6 @@
-import {formatTime} from "../utils/common";
 import AbstractComponent from "./abstract-component";
+
+import {formatTime} from "../utils/common";
 
 /**
  * Массив объектов комментариев
