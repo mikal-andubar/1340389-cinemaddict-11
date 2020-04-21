@@ -9,6 +9,8 @@ import {remove, componentRender} from "../utils/render";
 import {increaseInt} from "../utils/common";
 
 import {KEY_CODE, MOVIE_COUNT} from "../constatnts";
+import Filter from "../components/filter";
+import Sort from "../components/sort";
 
 /**
  * Поиск фильмов с наивысшими оценками
@@ -153,6 +155,10 @@ export default class PageController {
         remove(showMoreBtn);
       }
     };
+
+    // Рендер меню фильтров и сортировки
+    componentRender(this._container, new Filter(movies));
+    componentRender(this._container, new Sort());
 
     // Рендер доски со списками фильмов
     componentRender(this._container, this._movieBoard);
