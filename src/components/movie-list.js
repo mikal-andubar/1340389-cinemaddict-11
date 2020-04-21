@@ -48,4 +48,12 @@ export default class MovieList extends AbstractComponent {
   getTemplate() {
     return createMovieListTemplate(this._title, this._listType);
   }
+
+  /**
+   * Очищает содержимое списка фильмов
+   */
+  clearList() {
+    const innerList = this.getElement().querySelector(`.films-list__container`);
+    innerList.innerHTML = ``;
+  }
 }

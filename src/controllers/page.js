@@ -10,7 +10,8 @@ import {increaseInt} from "../utils/common";
 
 import {KEY_CODE, MOVIE_COUNT} from "../constatnts";
 import Filter from "../components/filter";
-import Sort from "../components/sort";
+import Sort, {SortType} from "../components/sort";
+import sort from "../components/sort";
 
 /**
  * Поиск фильмов с наивысшими оценками
@@ -27,6 +28,25 @@ const getTopRatedMovies = (movies, count = MOVIE_COUNT.EXTRA) => movies.slice().
  * @return {[]}
  */
 const getMostCommentedMovies = (movies, count = MOVIE_COUNT.EXTRA) => movies.slice().sort((a, b) => a.comments.length > b.comments.length ? -1 : 1).slice(0, count);
+
+const getSortedMovies = (movies, sortType, from, to) => {
+  let sortedMovies = [];
+  const showingMovies = movies.slice();
+
+  switch (sortType) {
+    case SortType.DEFAULT:
+      sortedMovies = showingMovies;
+      break;
+    case SortType.DATE:
+      sortedMovies = showingMovies.sort((a, b) => b.releaseDate - a.releaseDate);
+      break;
+    case SortType.RATING:
+      sortedMovies = showingMovies.sort((a, b) => b.rating - a.rating);
+      break;
+  }
+
+  return sortedMovies.slice(from, to);
+};
 
 /**
  * Контроллер, который управляет рендером элементов страницы
@@ -74,6 +94,20 @@ export default class PageController {
      * @type {MovieList}
      */
     this._mostCommentedList = new MovieList(`Most commented`, MovieListType.EXTRA);
+
+    /**
+     * Сортировка
+     * @type {Sort}
+     * @private
+     */
+    this._sort = new Sort();
+
+    /**
+     * Фильтры
+     * @type {Filter}
+     * @private
+     */
+    this._filter = new Filter()
 
     /**
      * Подвал сайта
@@ -156,9 +190,20 @@ export default class PageController {
       }
     };
 
+    const renderShowMoreBtn = () => {
+      if (shownMovies > movies.length) {
+        return;
+      }
+
+      componentRender(this._mainMovieList.getElement(), showMoreBtn);
+
+      showMoreBtn.setOnClickHandler(onShowMoreBtnClick);
+    };
+
     // Рендер меню фильтров и сортировки
-    componentRender(this._container, new Filter(movies));
-    componentRender(this._container, new Sort());
+    this._filter.movies = movies;
+    componentRender(this._container, this._filter);
+    componentRender(this._container, this._sort);
 
     // Рендер доски со списками фильмов
     componentRender(this._container, this._movieBoard);
@@ -184,10 +229,7 @@ export default class PageController {
      * @type {ShowMoreButton}
      */
     const showMoreBtn = new ShowMoreButton();
-
-    componentRender(this._mainMovieList.getElement(), showMoreBtn);
-
-    showMoreBtn.setOnClickHandler(onShowMoreBtnClick);
+    renderShowMoreBtn();
 
     // Рендер самых высокооцененных фильмов
     componentRender(this._movieBoard.getElement(), this._topRatedList);
@@ -204,5 +246,16 @@ export default class PageController {
     const footerStatisticsElement = this._footerElement.querySelector(`.footer__statistics`);
     // Рендер статистики в подвале
     componentRender(footerStatisticsElement, new Statistics(movies.length));
+
+    this._sort.setSortTypeChangeHandler((sortType) => {
+      shownMovies = MOVIE_COUNT.ON_START;
+
+      const sortedMovies = getSortedMovies(movies, sortType, 0, shownMovies);
+
+      this._mainMovieList.clearList();
+
+      this._renderMovieList(this._mainMovieList, sortedMovies);
+      renderShowMoreBtn();
+    });
   }
 }

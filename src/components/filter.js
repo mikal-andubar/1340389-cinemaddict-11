@@ -87,11 +87,18 @@ const createFiltersTemplate = (filters) => (
 export default class Filter extends AbstractComponent {
   /**
    * Конструктор класса
-   * @param {[]} movies
    */
-  constructor(movies) {
+  constructor() {
     super();
 
+    this._movies = [];
+  }
+
+  /**
+   * Сеттер для списка фильмов в компоненте фильтра
+   * @param {[]} movies
+   */
+  set movies(movies) {
     this._movies = movies;
   }
 
