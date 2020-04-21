@@ -1,10 +1,7 @@
-import Filter from "./components/filter";
-import Sort from "./components/sort";
 import UserProfile from "./components/user-profile";
 
 import PageController from "./controllers/page";
 
-import {generateFilters} from "./mock/filters";
 import {generateMovies} from "./mock/movie";
 import {generateUser} from "./mock/user";
 import {componentRender} from "./utils/render";
@@ -37,10 +34,6 @@ const userProfile = new UserProfile(generateUser(movies));
 
 // Рендер аватара и звания пользователя в шапке
 componentRender(headerElement, userProfile);
-
-// Рендер меню фильтров и сортировки
-componentRender(mainElement, new Filter(generateFilters(movies)));
-componentRender(mainElement, new Sort());
 
 const pageController = new PageController(mainElement);
 pageController.render(movies);
