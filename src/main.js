@@ -7,7 +7,7 @@ import PageController from "./controllers/page";
 import {generateFilters} from "./mock/filters";
 import {generateMovies} from "./mock/movie";
 import {generateUser} from "./mock/user";
-import {render} from "./utils/render";
+import {componentRender} from "./utils/render";
 
 import {MOVIE_COUNT} from "./constatnts";
 
@@ -36,11 +36,11 @@ const movies = generateMovies(MOVIE_COUNT.TOTAL);
 const userProfile = new UserProfile(generateUser(movies));
 
 // Рендер аватара и звания пользователя в шапке
-render(headerElement, userProfile);
+componentRender(headerElement, userProfile);
 
 // Рендер меню фильтров и сортировки
-render(mainElement, new Filter(generateFilters(movies)));
-render(mainElement, new Sort());
+componentRender(mainElement, new Filter(generateFilters(movies)));
+componentRender(mainElement, new Sort());
 
 const pageController = new PageController(mainElement);
 pageController.render(movies);

@@ -1,7 +1,7 @@
 import {KEY_CODE, MOVIE_COUNT} from "../constatnts";
 import MovieCard from "../components/movie-card";
 import MoviePopup from "../components/movie-popup";
-import {remove, render} from "../utils/render";
+import {remove, componentRender} from "../utils/render";
 import MovieList, {MovieListType} from "../components/movie-list";
 import ShowMoreButton from "../components/show-more-button";
 import MovieBoard from "../components/movie-board";
@@ -101,13 +101,6 @@ export default class PageController {
     };
 
     /**
-     * Обработчик события клика по кнопке закрытия попапа
-     */
-    const onPopupCloseClick = () => {
-      hidePopup();
-    };
-
-    /**
      * Обработчик нажатия на кнопку Escape
      * @param {KeyboardEvent} event
      */
@@ -125,10 +118,10 @@ export default class PageController {
 
     // Созадание попапа
     const moviePopup = new MoviePopup(movie);
-    moviePopup.setOnPopupCloseClickHandler(onPopupCloseClick);
+    moviePopup.setOnPopupCloseClickHandler(hidePopup);
 
     // Рендер карточки фильма
-    render(movieListElement, movieCard);
+    componentRender(movieListElement, movieCard);
   }
 
   /**
@@ -160,11 +153,11 @@ export default class PageController {
     };
 
     // Рендер доски со списками фильмов
-    render(this._container, this._movieBoard);
+    componentRender(this._container, this._movieBoard);
 
     // Рендер пустого списка фильмов
     if (movies.length === 0) {
-      render(this._movieBoard.getElement(), this._emptyMovieList);
+      componentRender(this._movieBoard.getElement(), this._emptyMovieList);
       return;
     }
 
@@ -175,7 +168,7 @@ export default class PageController {
     let shownMovies = MOVIE_COUNT.ON_START;
 
     // Рендер основного списка фильмов и карточек в него
-    render(this._movieBoard.getElement(), this._mainMovieList);
+    componentRender(this._movieBoard.getElement(), this._mainMovieList);
     this._renderMovieList(this._mainMovieList, movies.slice(0, shownMovies));
 
     /**
@@ -184,16 +177,16 @@ export default class PageController {
      */
     const showMoreBtn = new ShowMoreButton();
 
-    render(this._mainMovieList.getElement(), showMoreBtn);
+    componentRender(this._mainMovieList.getElement(), showMoreBtn);
 
     showMoreBtn.setOnClickHandler(onShowMoreBtnClick);
 
     // Рендер самых высокооцененных фильмов
-    render(this._movieBoard.getElement(), this._topRatedList);
+    componentRender(this._movieBoard.getElement(), this._topRatedList);
     this._renderMovieList(this._topRatedList, getTopRatedMovies(movies));
 
     // Рендер самых обсуждаемых фильмов
-    render(this._movieBoard.getElement(), this._mostCommentedList);
+    componentRender(this._movieBoard.getElement(), this._mostCommentedList);
     this._renderMovieList(this._mostCommentedList, getMostCommentedMovies(movies));
 
     /**
@@ -202,6 +195,6 @@ export default class PageController {
      */
     const footerStatisticsElement = this._footerElement.querySelector(`.footer__statistics`);
     // Рендер статистики в подвале
-    render(footerStatisticsElement, new Statistics(movies.length));
+    componentRender(footerStatisticsElement, new Statistics(movies.length));
   }
 }

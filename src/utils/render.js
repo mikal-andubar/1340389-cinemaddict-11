@@ -13,12 +13,12 @@ export const createElement = (template) => {
 };
 
 /**
- * Функция рендера элемента
+ * Функция рендера компонента
  * @param {Element} container
  * @param {{}} component
  * @param {string} place
  */
-export const render = (container, component, place = RENDER_PLACE.BEFORE_END) => {
+export const componentRender = (container, component, place = RENDER_PLACE.BEFORE_END) => {
   switch (place) {
     case RENDER_PLACE.AFTER_BEGIN:
       container.prepend(component.getElement());
