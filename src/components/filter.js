@@ -1,5 +1,6 @@
+import AbstractComponent from "./abstract-component";
+
 import {FILTER_NAMES} from "../constatnts";
-import {createElement} from "../utils";
 
 /**
  * Создание разметки фильтра
@@ -31,14 +32,15 @@ const createFiltersTemplate = (filters) => (
 /**
  * Класс для фильтров
  */
-export default class Filter {
+export default class Filter extends AbstractComponent {
   /**
    * Конструктор класса
    * @param {[]} filters
    */
   constructor(filters) {
+    super();
+
     this._filters = filters;
-    this._element = null;
   }
 
   /**
@@ -47,25 +49,6 @@ export default class Filter {
    */
   getTemplate() {
     return createFiltersTemplate(this._filters);
-  }
-
-  /**
-   * Возвращает элемент DOM
-   * @return {null}
-   */
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-
-    return this._element;
-  }
-
-  /**
-   * Очищает элемент DOM
-   */
-  removeElement() {
-    this._element = null;
   }
 }
 

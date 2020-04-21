@@ -1,5 +1,5 @@
-import {generatePerson, generateRandomDate, generateRandomText, getRandomArrayItem} from "../utils";
-import {emojis} from "../components/comments";
+import {generatePerson, generateRandomDate, generateRandomText, getRandomArrayItem} from "../utils/common";
+import {emojis} from "../components/comment";
 
 /**
  * Генерирует комметарий

@@ -1,6 +1,9 @@
+import AbstractComponent from "./abstract-component";
+import Comment from "./comment";
+
+import {formatDuration} from "../utils/common";
+
 import {MONTH_NAMES} from "../constatnts";
-import {createElement, formatDuration} from "../utils";
-import {createCommentsTemplate} from "./comments";
 
 /**
  * Создание шаблона списка жанров
@@ -12,9 +15,10 @@ const createGenresListTemplate = (genres) => genres.map((genre) => `<span class=
 /**
  * Создание шаблона с разметкой для попапа
  * @param {{}} movie
+ * @param {string} commentsTemplate
  * @return {string}
  */
-const createMoviePopupTemplate = (movie) => {
+const createMoviePopupTemplate = (movie, commentsTemplate) => {
   const {
     title,
     originalTitle,
@@ -29,7 +33,6 @@ const createMoviePopupTemplate = (movie) => {
     poster,
     description,
     age,
-    comments,
     isInWatchList,
     isWatched,
     isFavorite
@@ -122,7 +125,7 @@ const createMoviePopupTemplate = (movie) => {
 
       <div class="form-details__bottom-container">
         <section class="film-details__comments-wrap">
-          ${createCommentsTemplate(comments)}
+          ${commentsTemplate}
         </section>
       </div>
     </form>
@@ -133,14 +136,16 @@ const createMoviePopupTemplate = (movie) => {
 /**
  * Класс для попапа с детальной информацией о фильме
  */
-export default class MoviePopup {
+export default class MoviePopup extends AbstractComponent {
   /**
    * Конструктор класса
    * @param {{}} movie
    */
   constructor(movie) {
+    super();
+
     this._movie = movie;
-    this._element = null;
+    this._commentComponent = new Comment(this._movie.comments);
   }
 
   /**
@@ -148,26 +153,18 @@ export default class MoviePopup {
    * @return {string}
    */
   getTemplate() {
-    return createMoviePopupTemplate(this._movie);
+    const commentsTemplate = this._commentComponent.getTemplate();
+
+    return createMoviePopupTemplate(this._movie, commentsTemplate);
   }
 
   /**
-   * Возвращает элемент DOM
-   * @return {null}
+   * Добавление обработчика события клика к кнопке закрытия
+   * @param {function} handler
    */
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-
-    return this._element;
-  }
-
-  /**
-   * Очищает элемент DOM
-   */
-  removeElement() {
-    this._element = null;
+  setOnPopupCloseClickHandler(handler) {
+    const closePopupBtn = this.getElement().querySelector(`.film-details__close-btn`);
+    closePopupBtn.addEventListener(`click`, handler);
   }
 }
 

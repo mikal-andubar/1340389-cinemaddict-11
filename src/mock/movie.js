@@ -6,7 +6,7 @@ import {
   getRandomDecimal,
   getRandomInt,
   generateRandomText,
-} from "../utils";
+} from "../utils/common";
 import {generateComments} from "./comment";
 
 /**

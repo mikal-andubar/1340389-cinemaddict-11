@@ -1,4 +1,4 @@
-import {createElement} from "../utils";
+import AbstractComponent from "./abstract-component";
 
 /**
  * Типы списка фильмов: основной, дополнительный, пустой
@@ -28,14 +28,15 @@ const createMovieListTemplate = (title, listType = MovieListType.MAIN) => {
 /**
  * Класс для списка фильмов
  */
-export default class MovieList {
+export default class MovieList extends AbstractComponent {
   /**
    * Конструктор класса
    * @param {string} title
    * @param {string} listType
    */
   constructor(title, listType = MovieListType.MAIN) {
-    this._element = null;
+    super();
+
     this._title = title;
     this._listType = listType;
   }
@@ -46,24 +47,5 @@ export default class MovieList {
    */
   getTemplate() {
     return createMovieListTemplate(this._title, this._listType);
-  }
-
-  /**
-   * Возвращает элемент DOM
-   * @return {null}
-   */
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-
-    return this._element;
-  }
-
-  /**
-   * Очищает элемент DOM
-   */
-  removeElement() {
-    this._element = null;
   }
 }

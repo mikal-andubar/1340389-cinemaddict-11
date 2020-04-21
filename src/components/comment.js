@@ -1,4 +1,6 @@
-import {formatTime} from "../utils";
+import AbstractComponent from "./abstract-component";
+
+import {formatTime} from "../utils/common";
 
 /**
  * Массив объектов комментариев
@@ -61,7 +63,7 @@ const createEmojiMarkup = ({emotion, image}) => (
  * @param {[]} emojiList
  * @return {string}
  */
-export const createEmojiListTemplate = (emojiList) => `<div class="film-details__emoji-list">${emojiList.map(createEmojiMarkup).join(`\n`)}</div>`;
+const createEmojiListTemplate = (emojiList) => `<div class="film-details__emoji-list">${emojiList.map(createEmojiMarkup).join(`\n`)}</div>`;
 
 
 /**
@@ -87,3 +89,28 @@ export const createCommentsTemplate = (comments) => (
 
   </div>`
 );
+
+/**
+ * Класс для работы с комментариями
+ */
+export default class Comment extends AbstractComponent {
+
+  /**
+   * Конструктор класса, принимает массив комментариев
+   * @param {[]} comments
+   */
+  constructor(comments) {
+    super();
+
+    this._comments = comments;
+  }
+
+  /**
+   * Возвращает шаблон списка комментариев
+   * @return {string}
+   */
+  getTemplate() {
+    return createCommentsTemplate(this._comments);
+  }
+
+}
