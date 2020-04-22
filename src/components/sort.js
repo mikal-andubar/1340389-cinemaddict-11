@@ -7,7 +7,29 @@ import AbstractComponent from "./abstract-component";
 export const SortType = {
   DEFAULT: `default`,
   DATE: `date`,
-  RATING: `rating`
+  RATING: `rating`,
+  COMMENTS: `comments`
+};
+
+/**
+ * Вспомогательная функция сортировки массива фильмов
+ * @param {{}[]}movies
+ * @param {string} sortType
+ * @return {{}[]}
+ */
+export const getSortedMoviesBySortType = (movies, sortType) => {
+  const showingMovies = movies.slice();
+
+  switch (sortType) {
+    case SortType.DATE:
+      return showingMovies.sort((a, b) => b.releaseDate - a.releaseDate);
+    case SortType.RATING:
+      return showingMovies.sort((a, b) => b.rating - a.rating);
+    case SortType.COMMENTS:
+      return showingMovies.sort((a, b) => b.comments.length - a.comments.length);
+    default:
+      return showingMovies;
+  }
 };
 
 /**
@@ -22,8 +44,12 @@ const SORT_ACTIVE_CLASS = `sort__button--active`;
  * @param {number} index
  * @return {string}
  */
-const createSortBtn = (sortType, index) => (
-  `<li>
+const createSortBtn = (sortType, index) => {
+  if (sortType === SortType.COMMENTS) {
+    return ``;
+  }
+  return (
+    `<li>
       <a
         href="#"
         class="sort__button ${index ? `` : SORT_ACTIVE_CLASS}"
@@ -32,7 +58,8 @@ const createSortBtn = (sortType, index) => (
         Sort by ${sortType}
       </a>
     </li>`
-);
+  );
+};
 
 /**
  * Отрисовка списка фильтров
@@ -75,6 +102,18 @@ export default class Sort extends AbstractComponent {
    */
   getTemplate() {
     return createSortingTemplate();
+  }
+
+  /**
+   * Возвращает массив фильмов в заданном интервале с учетом текущего вида сортировки
+   * @param {{}[]} movies
+   * @param {number} from
+   * @param {number} to
+   * @return {{}[]}
+   */
+  getSortedMovies(movies, from, to) {
+    const sortedMovies = getSortedMoviesBySortType(movies, this._currentSortType);
+    return sortedMovies.slice(from, to);
   }
 
   /**

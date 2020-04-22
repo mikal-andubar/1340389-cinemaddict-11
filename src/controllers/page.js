@@ -4,14 +4,13 @@ import MovieList, {MovieListType} from "../components/movie-list";
 import ShowMoreButton from "../components/show-more-button";
 import MovieBoard from "../components/movie-board";
 import Statistics from "../components/statistics";
+import Sort, {getSortedMoviesBySortType, SortType} from "../components/sort";
+import Filter from "../components/filter";
 
 import {remove, componentRender} from "../utils/render";
 import {increaseInt} from "../utils/common";
 
 import {KEY_CODE, MOVIE_COUNT} from "../constatnts";
-import Filter from "../components/filter";
-import Sort, {SortType} from "../components/sort";
-import sort from "../components/sort";
 
 /**
  * Поиск фильмов с наивысшими оценками
@@ -19,7 +18,9 @@ import sort from "../components/sort";
  * @param {number} count
  * @return {[]}
  */
-const getTopRatedMovies = (movies, count = MOVIE_COUNT.EXTRA) => movies.slice().sort((a, b) => a.rating > b.rating ? -1 : 1).slice(0, count);
+const getTopRatedMovies = (movies, count = MOVIE_COUNT.EXTRA) => (
+  getSortedMoviesBySortType(movies, SortType.RATING).slice(0, count)
+);
 
 /**
  * Поиск фильмов с самым большим количеством комментариев
@@ -27,26 +28,9 @@ const getTopRatedMovies = (movies, count = MOVIE_COUNT.EXTRA) => movies.slice().
  * @param {number} count
  * @return {[]}
  */
-const getMostCommentedMovies = (movies, count = MOVIE_COUNT.EXTRA) => movies.slice().sort((a, b) => a.comments.length > b.comments.length ? -1 : 1).slice(0, count);
-
-const getSortedMovies = (movies, sortType, from, to) => {
-  let sortedMovies = [];
-  const showingMovies = movies.slice();
-
-  switch (sortType) {
-    case SortType.DEFAULT:
-      sortedMovies = showingMovies;
-      break;
-    case SortType.DATE:
-      sortedMovies = showingMovies.sort((a, b) => b.releaseDate - a.releaseDate);
-      break;
-    case SortType.RATING:
-      sortedMovies = showingMovies.sort((a, b) => b.rating - a.rating);
-      break;
-  }
-
-  return sortedMovies.slice(from, to);
-};
+const getMostCommentedMovies = (movies, count = MOVIE_COUNT.EXTRA) => (
+  getSortedMoviesBySortType(movies, SortType.COMMENTS).slice(0, count)
+);
 
 /**
  * Контроллер, который управляет рендером элементов страницы
@@ -107,13 +91,20 @@ export default class PageController {
      * @type {Filter}
      * @private
      */
-    this._filter = new Filter()
+    this._filter = new Filter();
 
     /**
      * Подвал сайта
      * @type {Element}
      */
     this._footerElement = this._container.nextElementSibling;
+
+    /**
+     * Состояние отображения кнопки "Show More"
+     * @type {boolean}
+     * @private
+     */
+    this._showShowMoreBtn = false;
   }
 
   /**
@@ -183,13 +174,17 @@ export default class PageController {
       const previouslyShown = shownMovies;
       shownMovies = increaseInt(shownMovies, MOVIE_COUNT.ON_BTN);
 
-      this._renderMovieList(this._mainMovieList, movies.slice(previouslyShown, shownMovies));
+      this._renderMovieList(this._mainMovieList, this._sort.getSortedMovies(movies, previouslyShown, shownMovies));
 
       if (shownMovies >= MOVIE_COUNT.TOTAL) {
         remove(showMoreBtn);
+        this._showShowMoreBtn = false;
       }
     };
 
+    /**
+     * Рендер кнопки "Show More"
+     */
     const renderShowMoreBtn = () => {
       if (shownMovies > movies.length) {
         return;
@@ -198,10 +193,12 @@ export default class PageController {
       componentRender(this._mainMovieList.getElement(), showMoreBtn);
 
       showMoreBtn.setOnClickHandler(onShowMoreBtnClick);
+
+      this._showShowMoreBtn = true;
     };
 
     // Рендер меню фильтров и сортировки
-    this._filter.movies = movies;
+    this._filter.setMovies(movies);
     componentRender(this._container, this._filter);
     componentRender(this._container, this._sort);
 
@@ -241,21 +238,22 @@ export default class PageController {
 
     /**
      * Раздел для отображения статистики
-     * @type {Element | any}
+     * @type {Element}
      */
     const footerStatisticsElement = this._footerElement.querySelector(`.footer__statistics`);
     // Рендер статистики в подвале
     componentRender(footerStatisticsElement, new Statistics(movies.length));
 
-    this._sort.setSortTypeChangeHandler((sortType) => {
+    // Добавление обработчика события смены типа сортировки
+    this._sort.setSortTypeChangeHandler(() => {
       shownMovies = MOVIE_COUNT.ON_START;
-
-      const sortedMovies = getSortedMovies(movies, sortType, 0, shownMovies);
 
       this._mainMovieList.clearList();
 
-      this._renderMovieList(this._mainMovieList, sortedMovies);
-      renderShowMoreBtn();
+      this._renderMovieList(this._mainMovieList, this._sort.getSortedMovies(movies, 0, shownMovies));
+      if (!this._showShowMoreBtn) {
+        renderShowMoreBtn();
+      }
     });
   }
 }

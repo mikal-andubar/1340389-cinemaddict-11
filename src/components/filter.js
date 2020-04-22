@@ -95,10 +95,10 @@ export default class Filter extends AbstractComponent {
   }
 
   /**
-   * Сеттер для списка фильмов в компоненте фильтра
+   * Устанавливает список фильмов в компоненте фильтра
    * @param {[]} movies
    */
-  set movies(movies) {
+  setMovies(movies) {
     this._movies = movies;
   }
 

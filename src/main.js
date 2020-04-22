@@ -35,5 +35,10 @@ const userProfile = new UserProfile(generateUser(movies));
 // Рендер аватара и звания пользователя в шапке
 componentRender(headerElement, userProfile);
 
+/**
+ * Контроллер основного блока страницы
+ * @type {PageController}
+ */
 const pageController = new PageController(mainElement);
+// Рендер основного блока страницы
 pageController.render(movies);
