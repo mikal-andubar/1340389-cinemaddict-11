@@ -6,7 +6,7 @@ import {generateMovies} from "./mock/movie";
 import {generateUser} from "./mock/user";
 import {componentRender} from "./utils/render";
 
-import {MOVIE_COUNT} from "./constatnts";
+import {MOVIE_COUNT} from "./constants";
 
 /**
  * Вся шапка сайта

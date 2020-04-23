@@ -47,3 +47,14 @@ export const KEY_CODE = {
   ESCAPE: `Escape`,
   ESC: `Esc`
 };
+
+/**
+ * Виды сортировки
+ * @type {{}}
+ */
+export const SortType = {
+  DEFAULT: `default`,
+  DATE: `date`,
+  RATING: `rating`,
+  COMMENTS: `comments`
+};

@@ -1,36 +1,8 @@
 import AbstractComponent from "./abstract-component";
 
-/**
- * Виды сортировки
- * @type {{}}
- */
-export const SortType = {
-  DEFAULT: `default`,
-  DATE: `date`,
-  RATING: `rating`,
-  COMMENTS: `comments`
-};
+import {getSortedMoviesBySortType} from "../utils/common";
 
-/**
- * Вспомогательная функция сортировки массива фильмов
- * @param {{}[]}movies
- * @param {string} sortType
- * @return {{}[]}
- */
-export const getSortedMoviesBySortType = (movies, sortType) => {
-  const showingMovies = movies.slice();
-
-  switch (sortType) {
-    case SortType.DATE:
-      return showingMovies.sort((a, b) => b.releaseDate - a.releaseDate);
-    case SortType.RATING:
-      return showingMovies.sort((a, b) => b.rating - a.rating);
-    case SortType.COMMENTS:
-      return showingMovies.sort((a, b) => b.comments.length - a.comments.length);
-    default:
-      return showingMovies;
-  }
-};
+import {SortType} from "../constants";
 
 /**
  * Класс активной кнопки сортировки
@@ -72,17 +44,6 @@ const createSortingTemplate = () => {
 };
 
 /**
- * Снимает класс "sort__button--active" со всех кнопок сортировки
- * @param {Element} sortListElement
- */
-const deactivateSortBtns = (sortListElement) => {
-  const sortBtns = sortListElement.querySelectorAll(`.sort__button`);
-  sortBtns.forEach((btn) => {
-    btn.classList.remove(SORT_ACTIVE_CLASS);
-  });
-};
-
-/**
  * Класс для элементов сортировки
  */
 export default class Sort extends AbstractComponent {
@@ -94,6 +55,16 @@ export default class Sort extends AbstractComponent {
     super();
 
     this._currentSortType = SortType.DEFAULT;
+  }
+
+  /**
+   * Снимает класс "sort__button--active" со всех кнопок сортировки
+   */
+  _deactivateSortBtns() {
+    const sortBtns = this.getElement().querySelectorAll(`.sort__button`);
+    sortBtns.forEach((btn) => {
+      btn.classList.remove(SORT_ACTIVE_CLASS);
+    });
   }
 
   /**
@@ -131,7 +102,7 @@ export default class Sort extends AbstractComponent {
         return;
       }
 
-      deactivateSortBtns(this.getElement());
+      this._deactivateSortBtns();
       sortBtn.classList.add(SORT_ACTIVE_CLASS);
 
       this._currentSortType = sortType;

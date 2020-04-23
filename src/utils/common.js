@@ -1,3 +1,5 @@
+import {SortType} from "../constants";
+
 /**
  * Источник предложений для случайного текста
  * @type {string}
@@ -144,4 +146,25 @@ export const formatTime = (date) => {
   const minutes = castDateTimeFormat(date.getMinutes());
 
   return `${year}/${month}/${day} ${hours}:${minutes}`;
+};
+
+/**
+ * Вспомогательная функция сортировки массива фильмов
+ * @param {{}[]}movies
+ * @param {string} sortType
+ * @return {{}[]}
+ */
+export const getSortedMoviesBySortType = (movies, sortType) => {
+  const showingMovies = movies.slice();
+
+  switch (sortType) {
+    case SortType.DATE:
+      return showingMovies.sort((a, b) => b.releaseDate - a.releaseDate);
+    case SortType.RATING:
+      return showingMovies.sort((a, b) => b.rating - a.rating);
+    case SortType.COMMENTS:
+      return showingMovies.sort((a, b) => b.comments.length - a.comments.length);
+    default:
+      return showingMovies;
+  }
 };

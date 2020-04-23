@@ -1,4 +1,4 @@
-import {RENDER_PLACE} from "../constatnts";
+import {RENDER_PLACE} from "../constants";
 
 /**
  * Создает и возвращает элемент DOM с переданным содержимым

@@ -3,7 +3,7 @@ import Comment from "./comment";
 
 import {formatDuration} from "../utils/common";
 
-import {MONTH_NAMES} from "../constatnts";
+import {MONTH_NAMES} from "../constants";
 
 /**
  * Создание шаблона списка жанров
