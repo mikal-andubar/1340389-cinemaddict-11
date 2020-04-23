@@ -29,17 +29,6 @@ export const MONTH_NAMES = [
 ];
 
 /**
- * Константы названий фильтров
- * @type {{}}
- */
-export const FILTER_NAMES = {
-  ALL: `all`,
-  WATCHLIST: `watchlist`,
-  HISTORY: `history`,
-  FAVORITES: `favorites`
-};
-
-/**
  * Константы управляющие отображением
  * @type {{}}
  */
@@ -57,4 +46,15 @@ export const MOVIE_COUNT = {
 export const KEY_CODE = {
   ESCAPE: `Escape`,
   ESC: `Esc`
+};
+
+/**
+ * Виды сортировки
+ * @type {{}}
+ */
+export const SortType = {
+  DEFAULT: `default`,
+  DATE: `date`,
+  RATING: `rating`,
+  COMMENTS: `comments`
 };

@@ -3,7 +3,7 @@ import Comment from "./comment";
 
 import {formatDuration} from "../utils/common";
 
-import {MONTH_NAMES} from "../constatnts";
+import {MONTH_NAMES} from "../constants";
 
 /**
  * Создание шаблона списка жанров
@@ -57,7 +57,7 @@ const createMoviePopupTemplate = (movie, commentsTemplate) => {
           <div class="film-details__poster">
             <img class="film-details__poster-img" src="${poster}" alt="">
 
-            <p class="film-details__age">${age}+}</p>
+            <p class="film-details__age">${age}+</p>
           </div>
 
           <div class="film-details__info">
