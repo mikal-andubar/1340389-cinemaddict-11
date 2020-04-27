@@ -7,6 +7,7 @@ import {generateUser} from "./mock/user";
 import {componentRender} from "./utils/render";
 
 import {MOVIE_COUNT} from "./constants";
+import Statistics from "./components/statistics";
 
 /**
  * Вся шапка сайта
@@ -19,6 +20,12 @@ const headerElement = document.querySelector(`.header`);
  * @type {Element}
  */
 const mainElement = document.querySelector(`.main`);
+
+/**
+ * Подвал сайта
+ * @type {Element}
+ */
+const footerElement = document.querySelector(`.footer`);
 
 /**
  * Массив объектов с фильмами
@@ -42,3 +49,11 @@ componentRender(headerElement, userProfile);
 const pageController = new PageController(mainElement);
 // Рендер основного блока страницы
 pageController.render(movies);
+
+/**
+ * Раздел для отображения статистики
+ * @type {Element}
+ */
+const footerStatisticsElement = footerElement.querySelector(`.footer__statistics`);
+// Рендер статистики в подвале
+componentRender(footerStatisticsElement, new Statistics(movies.length));

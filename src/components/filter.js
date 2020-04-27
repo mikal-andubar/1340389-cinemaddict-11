@@ -38,7 +38,7 @@ export const generateFilters = (movies) => {
       {
         name: FilterNames.WATCHLIST,
         label: `Watchlist`,
-        count: movie.isInWatchList ? increaseInt(watchlist) : watchlist,
+        count: movie.isInWatchlist ? increaseInt(watchlist) : watchlist,
       },
       {
         name: FilterNames.HISTORY,

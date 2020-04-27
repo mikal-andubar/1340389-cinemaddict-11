@@ -1,12 +1,12 @@
 import {generatePerson, generateRandomDate, generateRandomText, getRandomArrayItem} from "../utils/common";
-import {emojis} from "../components/comment";
+import {Emojis} from "../constants";
 
 /**
  * Генерирует комметарий
  * @return {{}}
  */
 const generateComment = () => ({
-  emoji: getRandomArrayItem(emojis),
+  emoji: getRandomArrayItem(Object.entries(Emojis)),
   text: generateRandomText(1, 1),
   author: generatePerson(),
   date: generateRandomDate(2017, 2020),
