@@ -1,16 +1,42 @@
-import AbstractComponent from "./abstract-component";
 import Comment from "./comment";
+import AbstractSmartComponent from "./abstract-smart-component";
 
 import {formatDuration} from "../utils/common";
 
-import {MONTH_NAMES} from "../constants";
+import {EmojiNames, MONTH_NAMES, MOVIE_BUTTON, MovieCardButton} from "../constants";
 
 /**
  * Создание шаблона списка жанров
  * @param {[]} genres
  * @return {string}
  */
-const createGenresListTemplate = (genres) => genres.map((genre) => `<span class="film-details__genre">${genre}</span>`).join(`\n`);
+const createGenresListMarkup = (genres) => genres.map((genre) => `<span class="film-details__genre">${genre}</span>`).join(`\n`);
+
+/**
+ * Создает разметку элемента управления информацией о фильме
+ * @param {string} type
+ * @param {boolean} isActive
+ * @return {string}
+ */
+const createPopupButtonMarkup = (type, isActive) => {
+  const buttonLabel = MovieCardButton[type].value;
+  return (
+    `<input
+        type="checkbox"
+        class="film-details__control-input visually-hidden"
+        id="${type}"
+        name="${type}"
+        data-type="${type}"
+        ${isActive ? `checked` : ``}
+    >
+    <label
+        for="${type}"
+        class="film-details__control-label film-details__control-label--${type}"
+    >
+      ${buttonLabel}
+    </label>`
+  );
+};
 
 /**
  * Создание шаблона с разметкой для попапа
@@ -33,7 +59,7 @@ const createMoviePopupTemplate = (movie, commentsTemplate) => {
     poster,
     description,
     age,
-    isInWatchList,
+    isInWatchlist,
     isWatched,
     isFavorite
   } = movie;
@@ -42,9 +68,9 @@ const createMoviePopupTemplate = (movie, commentsTemplate) => {
   const writersList = writers.map((person) => `${person.firstName} ${person.secondName}`).join(`, `).trim();
   const actorsList = actors.map((person) => `${person.firstName} ${person.secondName}`).join(`, `).trim();
 
-  const watchlistChecked = isInWatchList ? `checked` : ``;
-  const watchedChecked = isWatched ? `checked` : ``;
-  const favoriteChecked = isFavorite ? `checked` : ``;
+  const watchlistButton = createPopupButtonMarkup(MOVIE_BUTTON.WATCHLIST, isInWatchlist);
+  const watchedButton = createPopupButtonMarkup(MOVIE_BUTTON.WATCHED, isWatched);
+  const favoriteButton = createPopupButtonMarkup(MOVIE_BUTTON.FAVORITE, isFavorite);
 
   return (
     `<section class="film-details">
@@ -100,7 +126,7 @@ const createMoviePopupTemplate = (movie, commentsTemplate) => {
               <tr class="film-details__row">
                 <td class="film-details__term">Genres</td>
                 <td class="film-details__cell">
-                  ${createGenresListTemplate(genres)}
+                  ${createGenresListMarkup(genres)}
                 </td>
               </tr>
             </table>
@@ -112,14 +138,9 @@ const createMoviePopupTemplate = (movie, commentsTemplate) => {
         </div>
 
         <section class="film-details__controls">
-          <input type="checkbox" class="film-details__control-input visually-hidden" id="watchlist" name="watchlist" ${watchlistChecked}>
-          <label for="watchlist" class="film-details__control-label film-details__control-label--watchlist">Add to watchlist</label>
-
-          <input type="checkbox" class="film-details__control-input visually-hidden" id="watched" name="watched" ${watchedChecked}>
-          <label for="watched" class="film-details__control-label film-details__control-label--watched">Already watched</label>
-
-          <input type="checkbox" class="film-details__control-input visually-hidden" id="favorite" name="favorite" ${favoriteChecked}>
-          <label for="favorite" class="film-details__control-label film-details__control-label--favorite">Add to favorites</label>
+          ${watchlistButton}
+          ${watchedButton}
+          ${favoriteButton}
         </section>
       </div>
 
@@ -136,7 +157,7 @@ const createMoviePopupTemplate = (movie, commentsTemplate) => {
 /**
  * Класс для попапа с детальной информацией о фильме
  */
-export default class MoviePopup extends AbstractComponent {
+export default class MoviePopup extends AbstractSmartComponent {
   /**
    * Конструктор класса
    * @param {{}} movie
@@ -146,6 +167,13 @@ export default class MoviePopup extends AbstractComponent {
 
     this._movie = movie;
     this._commentComponent = new Comment(this._movie.comments);
+
+    this._closeBtnHandler = null;
+
+    this._emojiClickHandler = this._emojiClickHandler.bind(this);
+    this._moviePopupBtnsHandler = this._moviePopupBtnsHandler.bind(this);
+
+    this._subscribeOnEvents();
   }
 
   /**
@@ -159,12 +187,70 @@ export default class MoviePopup extends AbstractComponent {
   }
 
   /**
+   * Восстанавливает обработчики событий после ререндера
+   */
+  recoveryListeners() {
+    this._subscribeOnEvents();
+  }
+
+  /**
    * Добавление обработчика события клика к кнопке закрытия
    * @param {function} handler
    */
   setOnPopupCloseClickHandler(handler) {
     const closePopupBtn = this.getElement().querySelector(`.film-details__close-btn`);
     closePopupBtn.addEventListener(`click`, handler);
+    this._closeBtnHandler = handler;
+  }
+
+  /**
+   * Подписывает эмелементы попапа на соответствующие события
+   * @private
+   */
+  _subscribeOnEvents() {
+    const element = this.getElement();
+
+    // Подпишем все кнопки на события
+    Object.values(MOVIE_BUTTON).forEach((btnName) => {
+      element.querySelector(`input[name=${btnName}]`)
+        .addEventListener(`change`, this._moviePopupBtnsHandler);
+    });
+
+    // Подпишем кнопку закрытия попапа на события клика
+    this.setOnPopupCloseClickHandler(this._closeBtnHandler);
+
+    // Подпишем радио-кнопки с эмодзи для комментариев на события клика
+    Object.values(EmojiNames).forEach((emotion) => {
+      element.querySelector(`#emoji-${emotion}`)
+        .addEventListener(`click`, this._emojiClickHandler);
+    });
+  }
+
+  /**
+   * Универсальный обработчик событий для элементов попапа
+   * @param {Event} event
+   */
+  _moviePopupBtnsHandler(event) {
+    event.preventDefault();
+
+    const buttonType = event.currentTarget.dataset.type;
+    const property = MovieCardButton[buttonType].property;
+
+    this._movie[property] = !this._movie[property];
+
+    this.rerender();
+  }
+
+  /**
+   * Обработчик кликов по смайликам
+   * @param {Event} event
+   */
+  _emojiClickHandler(event) {
+    const emojiName = event.currentTarget.value;
+
+    this._commentComponent.setCurrentEmoji(emojiName);
+
+    this.rerender();
   }
 }
 

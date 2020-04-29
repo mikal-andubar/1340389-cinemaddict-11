@@ -2,38 +2,20 @@ import AbstractComponent from "./abstract-component";
 
 import {formatTime} from "../utils/common";
 
-/**
- * Массив объектов комментариев
- * @type {({image: string, emotion: string}|{image: string, emotion: string}|{image: string, emotion: string}|{image: string, emotion: string})[]}
- */
-export const emojis = [
-  {
-    emotion: `smile`,
-    image: `./images/emoji/smile.png`
-  },
-  {
-    emotion: `angry`,
-    image: `./images/emoji/angry.png`
-  },
-  {
-    emotion: `sleeping`,
-    image: `./images/emoji/sleeping.png`
-  },
-  {
-    emotion: `puke`,
-    image: `./images/emoji/puke.png`
-  },
-];
+import {Emojis} from "../constants";
 
 /**
  * Создает шаблон со списком комменатриев
  * @param {{}} comment
  * @return {string}
  */
-const createCommentMarkup = ({emoji, text, author, date}) => (
-  `<li class="film-details__comment">
+const createCommentMarkup = ({emoji, text, author, date}) => {
+  const [smile, image] = emoji;
+
+  return (
+    `<li class="film-details__comment">
     <span class="film-details__comment-emoji">
-      <img src="${emoji.image}" width="55" height="55" alt="emoji-${emoji.emotion}">
+      <img src="${image}" width="55" height="55" alt="emoji-${smile}">
     </span>
     <div>
       <p class="film-details__comment-text">${text}</p>
@@ -44,51 +26,42 @@ const createCommentMarkup = ({emoji, text, author, date}) => (
       </p>
     </div>
   </li>`
-);
+  );
+};
 
 /**
  * Создание разметки эмоджи
  * @param {{}} emoji
+ * @param {boolean} isActive
  * @return {string}
  */
-const createEmojiMarkup = ({emotion, image}) => (
-  `<input class="film-details__emoji-item visually-hidden" name="comment-emoji" type="radio" id="emoji-${emotion}" value="${emotion}" />
-    <label class="film-details__emoji-label" for="emoji-${emotion}">
-      <img src="${image}" width="30" height="30" alt="emoji">
-    </label>`
+const createEmojiMarkup = ([emotion, image], isActive = false) => (
+  `<input
+      class="film-details__emoji-item visually-hidden"
+      name="comment-emoji"
+      type="radio"
+      id="emoji-${emotion}"
+      value="${emotion}"
+      ${isActive ? `checked` : ``}
+  />
+  <label class="film-details__emoji-label" for="emoji-${emotion}">
+    <img src="${image}" width="30" height="30" alt="emoji">
+  </label>`
 );
 
 /**
  * Создает список эмоджи
- * @param {[]} emojiList
+ * @param {string} currentEmoji
  * @return {string}
  */
-const createEmojiListTemplate = (emojiList) => `<div class="film-details__emoji-list">${emojiList.map(createEmojiMarkup).join(`\n`)}</div>`;
+const createEmojiListTemplate = (currentEmoji) => {
+  const emojisMarkup = Object.entries(Emojis).map((emoji) => {
+    const isActive = emoji[0] === currentEmoji;
+    return createEmojiMarkup(emoji, isActive);
+  }).join(`\n`);
+  return `<div class="film-details__emoji-list">${emojisMarkup}</div>`;
+};
 
-
-/**
- * Создание шаблона списка комментариев
- * @param {[]} comments
- * @return {string}
- */
-export const createCommentsTemplate = (comments) => (
-  `<h3 class="film-details__comments-title">Comments <span class="film-details__comments-count">${comments.length}</span></h3>
-
-  <ul class="film-details__comments-list">
-    ${comments.map(createCommentMarkup).join(`\n`)}
-  </ul>
-
-  <div class="film-details__new-comment">
-    <div for="add-emoji" class="film-details__add-emoji-label"></div>
-
-    <label class="film-details__comment-label">
-      <textarea class="film-details__comment-input" placeholder="Select reaction below and write comment here" name="comment"></textarea>
-    </label>
-
-    ${createEmojiListTemplate(emojis)}
-
-  </div>`
-);
 
 /**
  * Класс для работы с комментариями
@@ -103,6 +76,38 @@ export default class Comment extends AbstractComponent {
     super();
 
     this._comments = comments;
+    this._currentEmoji = null;
+  }
+
+  /**
+   * Создание шаблона списка комментариев
+   * @param {[]} comments
+   * @return {string}
+   */
+  _createCommentsTemplate(comments) {
+    const currentEmojiMarkup = this._currentEmoji ?
+      `<img src="${Emojis[this._currentEmoji]}" width="55" height="55" alt="emoji-smile">` : ``;
+
+    return (
+      `<h3 class="film-details__comments-title">Comments <span class="film-details__comments-count">${comments.length}</span></h3>
+
+      <ul class="film-details__comments-list">
+        ${comments.map(createCommentMarkup).join(`\n`)}
+      </ul>
+
+      <div class="film-details__new-comment">
+        <div for="add-emoji" class="film-details__add-emoji-label">
+          ${currentEmojiMarkup}
+        </div>
+
+        <label class="film-details__comment-label">
+          <textarea class="film-details__comment-input" placeholder="Select reaction below and write comment here" name="comment"></textarea>
+        </label>
+
+        ${createEmojiListTemplate(this._currentEmoji)}
+
+      </div>`
+    );
   }
 
   /**
@@ -110,7 +115,15 @@ export default class Comment extends AbstractComponent {
    * @return {string}
    */
   getTemplate() {
-    return createCommentsTemplate(this._comments);
+    return this._createCommentsTemplate(this._comments);
+  }
+
+  /**
+   * Устанавливает текущую эмоцию для комментария
+   * @param {string} emojiName
+   */
+  setCurrentEmoji(emojiName) {
+    this._currentEmoji = emojiName;
   }
 
 }

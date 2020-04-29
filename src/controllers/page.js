@@ -1,16 +1,14 @@
-import MovieCard from "../components/movie-card";
-import MoviePopup from "../components/movie-popup";
 import MovieList, {MovieListType} from "../components/movie-list";
 import ShowMoreButton from "../components/show-more-button";
 import MovieBoard from "../components/movie-board";
-import Statistics from "../components/statistics";
 import Sort from "../components/sort";
 import Filter from "../components/filter";
+import MovieController from "./movie";
 
 import {remove, componentRender} from "../utils/render";
 import {increaseInt, getSortedMoviesBySortType} from "../utils/common";
 
-import {KEY_CODE, MOVIE_COUNT, SortType} from "../constants";
+import {MOVIE_COUNT, SortType} from "../constants";
 
 /**
  * Поиск фильмов с наивысшими оценками
@@ -80,6 +78,13 @@ export default class PageController {
     this._mostCommentedList = new MovieList(`Most commented`, MovieListType.EXTRA);
 
     /**
+     * Кнопка SHOW MORE
+     * @type {ShowMoreButton}
+     * @private
+     */
+    this._showMoreBtn = new ShowMoreButton();
+
+    /**
      * Сортировка
      * @type {Sort}
      * @private
@@ -94,72 +99,38 @@ export default class PageController {
     this._filter = new Filter();
 
     /**
-     * Подвал сайта
-     * @type {Element}
-     */
-    this._footerElement = this._container.nextElementSibling;
-
-    /**
      * Состояние отображения кнопки "Show More"
      * @type {boolean}
      * @private
      */
     this._showShowMoreBtn = false;
-  }
-
-  /**
-   * Рендер карточки фильма
-   * @param {Element} movieListElement
-   * @param {{}} movie
-   */
-  _renderMovieCard(movieListElement, movie) {
-    /**
-     * Скрывает попап
-     */
-    const hidePopup = () => {
-      this._footerElement.removeChild(moviePopup.getElement());
-      document.removeEventListener(`keydown`, onEscBtnDown);
-    };
 
     /**
-     * Обработчик события клика по карточке фильма
+     * Массив фильмов
+     * @type {{}[]}
+     * @private
      */
-    const onPopupOpenClick = () => {
-      this._footerElement.appendChild(moviePopup.getElement());
-      document.addEventListener(`keydown`, onEscBtnDown);
-    };
+    this._movies = [];
 
     /**
-     * Обработчик нажатия на кнопку Escape
-     * @param {KeyboardEvent} event
+     * Массив контроллеров карточек с фильмами
+     * @type {*[]}
+     * @private
      */
-    const onEscBtnDown = (event) => {
-      const isEscBtn = event.key === KEY_CODE.ESCAPE || event.key === KEY_CODE.ESC;
+    this._shownMoviesControllers = [];
 
-      if (isEscBtn) {
-        hidePopup();
-      }
-    };
+    /**
+     * Количество показанных в данный момент фильмов
+     * @type {number}
+     * @private
+     */
+    this._shownMovies = 0;
 
-    // Создание карточки фильма
-    const movieCard = new MovieCard(movie);
-    movieCard.setOnPopupOpenClickHandler(onPopupOpenClick);
+    this._onDataChange = this._onDataChange.bind(this);
+    this._onViewChange = this._onViewChange.bind(this);
 
-    // Созадание попапа
-    const moviePopup = new MoviePopup(movie);
-    moviePopup.setOnPopupCloseClickHandler(hidePopup);
-
-    // Рендер карточки фильма
-    componentRender(movieListElement, movieCard);
-  }
-
-  /**
-   * Рендер списка фильмов
-   * @param {MovieList} movieList
-   * @param {[]} movies
-   */
-  _renderMovieList(movieList, movies = []) {
-    movies.forEach((movie) => this._renderMovieCard(movieList.getElement().querySelector(`.films-list__container`), movie));
+    this._onShowMoreBtnClick = this._onShowMoreBtnClick.bind(this);
+    this._onSortTypeChangeHandler = this._onSortTypeChangeHandler.bind(this);
   }
 
   /**
@@ -167,38 +138,10 @@ export default class PageController {
    * @param {{}[]} movies
    */
   render(movies) {
-    /**
-     * Обработчик события клика по кнопке "Show More"
-     */
-    const onShowMoreBtnClick = () => {
-      const previouslyShown = shownMovies;
-      shownMovies = increaseInt(shownMovies, MOVIE_COUNT.ON_BTN);
-
-      this._renderMovieList(this._mainMovieList, this._sort.getSortedMovies(movies, previouslyShown, shownMovies));
-
-      if (shownMovies >= MOVIE_COUNT.TOTAL) {
-        remove(showMoreBtn);
-        this._showShowMoreBtn = false;
-      }
-    };
-
-    /**
-     * Рендер кнопки "Show More"
-     */
-    const renderShowMoreBtn = () => {
-      if (shownMovies > movies.length) {
-        return;
-      }
-
-      componentRender(this._mainMovieList.getElement(), showMoreBtn);
-
-      showMoreBtn.setOnClickHandler(onShowMoreBtnClick);
-
-      this._showShowMoreBtn = true;
-    };
+    this._movies = movies;
 
     // Рендер меню фильтров и сортировки
-    this._filter.setMovies(movies);
+    this._filter.setMovies(this._movies);
     componentRender(this._container, this._filter);
     componentRender(this._container, this._sort);
 
@@ -206,54 +149,152 @@ export default class PageController {
     componentRender(this._container, this._movieBoard);
 
     // Рендер пустого списка фильмов
-    if (movies.length === 0) {
+    if (this._movies.length === 0) {
       componentRender(this._movieBoard.getElement(), this._emptyMovieList);
       return;
     }
 
-    /**
-     * Количество отображенных карточек на данный момент
-     * @type {number}
-     */
-    let shownMovies = MOVIE_COUNT.ON_START;
+    this._shownMovies = MOVIE_COUNT.ON_START;
 
     // Рендер основного списка фильмов и карточек в него
     componentRender(this._movieBoard.getElement(), this._mainMovieList);
-    this._renderMovieList(this._mainMovieList, movies.slice(0, shownMovies));
+    const newMovies = this._renderMovieList(this._mainMovieList, this._movies.slice(0, this._shownMovies));
+    this._pushRenderedMovies(newMovies);
 
-    /**
-     * Кнопка "Show More"
-     * @type {ShowMoreButton}
-     */
-    const showMoreBtn = new ShowMoreButton();
-    renderShowMoreBtn();
+    this._renderShowMoreBtn();
 
     // Рендер самых высокооцененных фильмов
     componentRender(this._movieBoard.getElement(), this._topRatedList);
-    this._renderMovieList(this._topRatedList, getTopRatedMovies(movies));
+    const topRatedMovies = this._renderMovieList(this._topRatedList, getTopRatedMovies(movies));
+    this._pushRenderedMovies(topRatedMovies);
 
     // Рендер самых обсуждаемых фильмов
     componentRender(this._movieBoard.getElement(), this._mostCommentedList);
-    this._renderMovieList(this._mostCommentedList, getMostCommentedMovies(movies));
-
-    /**
-     * Раздел для отображения статистики
-     * @type {Element}
-     */
-    const footerStatisticsElement = this._footerElement.querySelector(`.footer__statistics`);
-    // Рендер статистики в подвале
-    componentRender(footerStatisticsElement, new Statistics(movies.length));
+    const mostCommentedMovies = this._renderMovieList(this._mostCommentedList, getMostCommentedMovies(movies));
+    this._pushRenderedMovies(mostCommentedMovies);
 
     // Добавление обработчика события смены типа сортировки
-    this._sort.setSortTypeChangeHandler(() => {
-      shownMovies = MOVIE_COUNT.ON_START;
+    this._sort.setSortTypeChangeHandler(this._onSortTypeChangeHandler);
+  }
 
-      this._mainMovieList.clearList();
+  /**
+   * Рендер списка фильмов
+   * @param {MovieList} movieList
+   * @param {[]} movies
+   * @return {MovieController[]}
+   */
+  _renderMovieList(movieList, movies = []) {
+    return movies.map((movie) => {
+      const movieController = new MovieController(
+          movieList.getListElement(),
+          movieList.getListType(),
+          this._onDataChange,
+          this._onViewChange
+      );
 
-      this._renderMovieList(this._mainMovieList, this._sort.getSortedMovies(movies, 0, shownMovies));
-      if (!this._showShowMoreBtn) {
-        renderShowMoreBtn();
-      }
+      movieController.render(movie);
+
+      return movieController;
+    });
+  }
+
+  /**
+   * Рендер кнопки "Show More"
+   */
+  _renderShowMoreBtn() {
+    if (this._shownMovies > this._movies.length) {
+      return;
+    }
+
+    componentRender(this._mainMovieList.getElement(), this._showMoreBtn);
+
+    this._showMoreBtn.setOnClickHandler(this._onShowMoreBtnClick);
+
+    this._showShowMoreBtn = true;
+  }
+
+  /**
+   * Обработчик события клика по кнопке "Show More"
+   */
+  _onShowMoreBtnClick() {
+    const previouslyShown = this._shownMovies;
+    this._shownMovies = increaseInt(this._shownMovies, MOVIE_COUNT.ON_BTN);
+
+    const renderedMovies = this._renderMovieList(
+        this._mainMovieList,
+        this._sort.getSortedMovies(this._movies, previouslyShown, this._shownMovies)
+    );
+    this._pushRenderedMovies(renderedMovies);
+
+    if (this._shownMovies >= MOVIE_COUNT.TOTAL) {
+      remove(this._showMoreBtn);
+      this._showShowMoreBtn = false;
+    }
+  }
+
+  _onSortTypeChangeHandler() {
+    this._shownMovies = MOVIE_COUNT.ON_START;
+
+    this._mainMovieList.clearList();
+
+    const renderedMovies = this._renderMovieList(
+        this._mainMovieList,
+        this._sort.getSortedMovies(this._movies, 0, this._shownMovies)
+    );
+    this._refreshMovieControllersInList(MovieListType.MAIN, renderedMovies);
+
+    if (!this._showShowMoreBtn) {
+      this._renderShowMoreBtn();
+    }
+  }
+
+  /**
+   * Добавляет контроллеры отрендереных фильмов в массив контроллеров
+   * @param {MovieController[]} renderedMovies
+   * @private
+   */
+  _pushRenderedMovies(renderedMovies) {
+    this._shownMoviesControllers = this._shownMoviesControllers.concat(renderedMovies);
+  }
+
+  /**
+   * Обновляет массив контроллеров для заданного типа списка фильмов
+   * @param {string} listType
+   * @param {MovieController[]} renderedMovies
+   * @private
+   */
+  _refreshMovieControllersInList(listType, renderedMovies) {
+    this._shownMoviesControllers = this._shownMoviesControllers.filter((controller) => controller.getListType() !== listType);
+    this._pushRenderedMovies(renderedMovies);
+  }
+
+  /**
+   * Обработчик изменения данных задачи
+   * @param {{}} oldData
+   * @param {{}} newData
+   * @private
+   */
+  _onDataChange(oldData, newData) {
+    const index = this._movies.findIndex((it) => it === oldData);
+
+    if (index === -1) {
+      return;
+    }
+
+    this._movies = [].concat(this._movies.slice(0, index), newData, this._movies.slice(index + 1));
+
+    this._shownMoviesControllers.forEach((controller) => {
+      controller.changeData(oldData, newData);
+    });
+  }
+
+  /**
+   * Обработчик переключения режимов отображения карточки с фильмом
+   * @private
+   */
+  _onViewChange() {
+    this._shownMoviesControllers.forEach((controller) => {
+      controller.setDefaultView();
     });
   }
 }

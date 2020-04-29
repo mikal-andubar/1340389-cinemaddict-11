@@ -38,3 +38,19 @@ export const remove = (component) => {
   component.removeElement();
 };
 
+/**
+ * Меняет один компонент на другой
+ * @param {{}} newComponent
+ * @param {{}} oldComponent
+ */
+export const replace = (newComponent, oldComponent) => {
+  const parentElement = oldComponent.getElement().parentElement;
+  const newElement = newComponent.getElement();
+  const oldElement = oldComponent.getElement();
+
+  const isExistsElements = !!(parentElement && newElement && oldElement);
+
+  if (isExistsElements && parentElement.contains(oldElement)) {
+    parentElement.replaceChild(newElement, oldElement);
+  }
+};

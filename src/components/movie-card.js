@@ -2,6 +2,23 @@ import AbstractComponent from "./abstract-component";
 
 import {clipText, formatDuration} from "../utils/common";
 
+import {MOVIE_BUTTON, MovieCardButton} from "../constants";
+
+/**
+ * Отрисовывает кнопку для работы с фильмом
+ * @param {string} type
+ * @param {boolean} isActive
+ * @return {string}
+ */
+const createButtonMarkup = (type, isActive) => (
+  `<button
+    class="film-card__controls-item button film-card__controls-item--${MovieCardButton[type].name} ${isActive ? `film-card__controls-item--active` : ``}"
+    data-type="${type}"
+  >
+    ${MovieCardButton[type].value}
+  </button>`
+);
+
 /**
  * Отрисовка карточки фильма
  * @param {{}} movie
@@ -17,10 +34,14 @@ const createMovieCardTemplate = (movie) => {
     poster,
     description,
     comments,
-    isInWatchList,
+    isInWatchlist,
     isWatched,
     isFavorite
   } = movie;
+
+  const watchlistBtn = createButtonMarkup(MOVIE_BUTTON.WATCHLIST, isInWatchlist);
+  const watchedBtn = createButtonMarkup(MOVIE_BUTTON.WATCHED, isWatched);
+  const favoriteBtn = createButtonMarkup(MOVIE_BUTTON.FAVORITE, isFavorite);
 
   return (
     `<article class="film-card">
@@ -35,15 +56,9 @@ const createMovieCardTemplate = (movie) => {
       <p class="film-card__description">${clipText(description, 140)}</p>
       <a class="film-card__comments">${comments.length} comments</a>
       <form class="film-card__controls">
-        <button class="film-card__controls-item button film-card__controls-item--add-to-watchlist${isInWatchList ? ` film-card__controls-item--active` : ``}">
-          Add to watchlist
-        </button>
-        <button class="film-card__controls-item button film-card__controls-item--mark-as-watched${isWatched ? ` film-card__controls-item--active` : ``}">
-          Mark as watched
-        </button>
-        <button class="film-card__controls-item button film-card__controls-item--favorite${isFavorite ? ` film-card__controls-item--active` : ``}">
-          Mark as favorite
-        </button>
+        ${watchlistBtn}
+        ${watchedBtn}
+        ${favoriteBtn}
       </form>
     </article>`
   );
@@ -61,6 +76,8 @@ export default class MovieCard extends AbstractComponent {
     super();
 
     this._movie = movie;
+
+    this.setMovieCardBtnsHandler = this.setMovieCardBtnsHandler.bind(this);
   }
 
   /**
@@ -69,6 +86,18 @@ export default class MovieCard extends AbstractComponent {
    */
   getTemplate() {
     return createMovieCardTemplate(this._movie);
+  }
+
+  /**
+   * Подписывает кнопки на карточке фильма на универсальный обработчик клика
+   * @param {function} handler
+   */
+  setMovieCardBtnsHandler(handler) {
+    Object.values(MOVIE_BUTTON).forEach((btnName) => {
+      this.getElement()
+        .querySelector(`.film-card__controls-item--${MovieCardButton[btnName].name}`)
+        .addEventListener(`click`, handler);
+    });
   }
 
   /**

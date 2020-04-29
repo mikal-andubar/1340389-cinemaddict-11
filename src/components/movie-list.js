@@ -50,6 +50,22 @@ export default class MovieList extends AbstractComponent {
   }
 
   /**
+   * Возвращает элемент, в который непосредственно помещаются карточки фильмов
+   * @return {Element}
+   */
+  getListElement() {
+    return this.getElement().querySelector(`.films-list__container`);
+  }
+
+  /**
+   * Возвращает тип списка
+   * @return {string}
+   */
+  getListType() {
+    return this._listType;
+  }
+
+  /**
    * Очищает содержимое списка фильмов
    */
   clearList() {

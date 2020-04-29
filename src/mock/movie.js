@@ -62,15 +62,18 @@ const getGenresList = (count) => {
 
 /**
  * Генерирует объект фильма
+ * @param {{}} movie
+ * @param {number} index
  * @return {{}}
  */
-const generateMovie = () => {
+const generateMovie = (movie, index) => {
   const title = generateTitle();
   const originalTitle = title;
 
   const isWatched = getRandomBool();
 
   return {
+    id: index,
     title,
     originalTitle,
     director: generatePerson(),
@@ -85,7 +88,7 @@ const generateMovie = () => {
     description: generateRandomText(1, 5),
     age: getRandomArrayItem(ageVariants),
     isWatched,
-    isInWatchList: isWatched ? false : getRandomBool(),
+    isInWatchlist: isWatched ? false : getRandomBool(),
     isFavorite: isWatched ? getRandomBool() : false,
     comments: generateComments(getRandomInt(0, 6)),
   };
@@ -94,6 +97,6 @@ const generateMovie = () => {
 /**
  * Генератор фильмов
  * @param {number} movieCount
- * @return {{country: *, comments: *[], releaseDate: Date, director: {}, rating: string, description: string, isWatched: boolean, writers: *[], title: string, duration: number, actors: *[], originalTitle: string, genres: *[], isInWatchList: (boolean|boolean), poster: *, age: *, isFavorite: (boolean|boolean)}[]}
+ * @return {{country: *, comments: *[], releaseDate: Date, director: {}, rating: string, description: string, isWatched: boolean, writers: *[], title: string, duration: number, actors: *[], originalTitle: string, genres: *[], isInWatchlist: (boolean|boolean), poster: *, age: *, isFavorite: (boolean|boolean)}[]}
  */
 export const generateMovies = (movieCount) => new Array(movieCount).fill(``).map(generateMovie);
