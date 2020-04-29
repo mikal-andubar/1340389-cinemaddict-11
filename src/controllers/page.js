@@ -78,6 +78,13 @@ export default class PageController {
     this._mostCommentedList = new MovieList(`Most commented`, MovieListType.EXTRA);
 
     /**
+     * Кнопка SHOW MORE
+     * @type {ShowMoreButton}
+     * @private
+     */
+    this._showMoreBtn = new ShowMoreButton();
+
+    /**
      * Сортировка
      * @type {Sort}
      * @private
@@ -112,8 +119,62 @@ export default class PageController {
      */
     this._shownMoviesControllers = [];
 
+    /**
+     * Количество показанных в данный момент фильмов
+     * @type {number}
+     * @private
+     */
+    this._shownMovies = 0;
+
     this._onDataChange = this._onDataChange.bind(this);
     this._onViewChange = this._onViewChange.bind(this);
+
+    this._onShowMoreBtnClick = this._onShowMoreBtnClick.bind(this);
+    this._onSortTypeChangeHandler = this._onSortTypeChangeHandler.bind(this);
+  }
+
+  /**
+   * Отрисовка страницы
+   * @param {{}[]} movies
+   */
+  render(movies) {
+    this._movies = movies;
+
+    // Рендер меню фильтров и сортировки
+    this._filter.setMovies(this._movies);
+    componentRender(this._container, this._filter);
+    componentRender(this._container, this._sort);
+
+    // Рендер доски со списками фильмов
+    componentRender(this._container, this._movieBoard);
+
+    // Рендер пустого списка фильмов
+    if (this._movies.length === 0) {
+      componentRender(this._movieBoard.getElement(), this._emptyMovieList);
+      return;
+    }
+
+    this._shownMovies = MOVIE_COUNT.ON_START;
+
+    // Рендер основного списка фильмов и карточек в него
+    componentRender(this._movieBoard.getElement(), this._mainMovieList);
+    const newMovies = this._renderMovieList(this._mainMovieList, this._movies.slice(0, this._shownMovies));
+    this._pushRenderedMovies(newMovies);
+
+    this._renderShowMoreBtn();
+
+    // Рендер самых высокооцененных фильмов
+    componentRender(this._movieBoard.getElement(), this._topRatedList);
+    const topRatedMovies = this._renderMovieList(this._topRatedList, getTopRatedMovies(movies));
+    this._pushRenderedMovies(topRatedMovies);
+
+    // Рендер самых обсуждаемых фильмов
+    componentRender(this._movieBoard.getElement(), this._mostCommentedList);
+    const mostCommentedMovies = this._renderMovieList(this._mostCommentedList, getMostCommentedMovies(movies));
+    this._pushRenderedMovies(mostCommentedMovies);
+
+    // Добавление обработчика события смены типа сортировки
+    this._sort.setSortTypeChangeHandler(this._onSortTypeChangeHandler);
   }
 
   /**
@@ -138,104 +199,53 @@ export default class PageController {
   }
 
   /**
-   * Отрисовка страницы
-   * @param {{}[]} movies
+   * Рендер кнопки "Show More"
    */
-  render(movies) {
-    this._movies = movies;
-
-    /**
-     * Обработчик события клика по кнопке "Show More"
-     */
-    const onShowMoreBtnClick = () => {
-      const previouslyShown = shownMovies;
-      shownMovies = increaseInt(shownMovies, MOVIE_COUNT.ON_BTN);
-
-      const renderedMovies = this._renderMovieList(
-          this._mainMovieList,
-          this._sort.getSortedMovies(this._movies, previouslyShown, shownMovies)
-      );
-      this._pushRenderedMovies(renderedMovies);
-
-      if (shownMovies >= MOVIE_COUNT.TOTAL) {
-        remove(showMoreBtn);
-        this._showShowMoreBtn = false;
-      }
-    };
-
-    /**
-     * Рендер кнопки "Show More"
-     */
-    const renderShowMoreBtn = () => {
-      if (shownMovies > this._movies.length) {
-        return;
-      }
-
-      componentRender(this._mainMovieList.getElement(), showMoreBtn);
-
-      showMoreBtn.setOnClickHandler(onShowMoreBtnClick);
-
-      this._showShowMoreBtn = true;
-    };
-
-    // Рендер меню фильтров и сортировки
-    this._filter.setMovies(this._movies);
-    componentRender(this._container, this._filter);
-    componentRender(this._container, this._sort);
-
-    // Рендер доски со списками фильмов
-    componentRender(this._container, this._movieBoard);
-
-    // Рендер пустого списка фильмов
-    if (this._movies.length === 0) {
-      componentRender(this._movieBoard.getElement(), this._emptyMovieList);
+  _renderShowMoreBtn() {
+    if (this._shownMovies > this._movies.length) {
       return;
     }
 
-    /**
-     * Количество отображенных карточек на данный момент
-     * @type {number}
-     */
-    let shownMovies = MOVIE_COUNT.ON_START;
+    componentRender(this._mainMovieList.getElement(), this._showMoreBtn);
 
-    // Рендер основного списка фильмов и карточек в него
-    componentRender(this._movieBoard.getElement(), this._mainMovieList);
-    const newMovies = this._renderMovieList(this._mainMovieList, this._movies.slice(0, shownMovies));
-    this._pushRenderedMovies(newMovies);
+    this._showMoreBtn.setOnClickHandler(this._onShowMoreBtnClick);
 
-    /**
-     * Кнопка "Show More"
-     * @type {ShowMoreButton}
-     */
-    const showMoreBtn = new ShowMoreButton();
-    renderShowMoreBtn();
+    this._showShowMoreBtn = true;
+  }
 
-    // Рендер самых высокооцененных фильмов
-    componentRender(this._movieBoard.getElement(), this._topRatedList);
-    const topRatedMovies = this._renderMovieList(this._topRatedList, getTopRatedMovies(movies));
-    this._pushRenderedMovies(topRatedMovies);
+  /**
+   * Обработчик события клика по кнопке "Show More"
+   */
+  _onShowMoreBtnClick() {
+    const previouslyShown = this._shownMovies;
+    this._shownMovies = increaseInt(this._shownMovies, MOVIE_COUNT.ON_BTN);
 
-    // Рендер самых обсуждаемых фильмов
-    componentRender(this._movieBoard.getElement(), this._mostCommentedList);
-    const mostCommentedMovies = this._renderMovieList(this._mostCommentedList, getMostCommentedMovies(movies));
-    this._pushRenderedMovies(mostCommentedMovies);
+    const renderedMovies = this._renderMovieList(
+        this._mainMovieList,
+        this._sort.getSortedMovies(this._movies, previouslyShown, this._shownMovies)
+    );
+    this._pushRenderedMovies(renderedMovies);
 
-    // Добавление обработчика события смены типа сортировки
-    this._sort.setSortTypeChangeHandler(() => {
-      shownMovies = MOVIE_COUNT.ON_START;
+    if (this._shownMovies >= MOVIE_COUNT.TOTAL) {
+      remove(this._showMoreBtn);
+      this._showShowMoreBtn = false;
+    }
+  }
 
-      this._mainMovieList.clearList();
+  _onSortTypeChangeHandler() {
+    this._shownMovies = MOVIE_COUNT.ON_START;
 
-      const renderedMovies = this._renderMovieList(
-          this._mainMovieList,
-          this._sort.getSortedMovies(this._movies, 0, shownMovies)
-      );
-      this._refreshMovieControllersInList(MovieListType.MAIN, renderedMovies);
+    this._mainMovieList.clearList();
 
-      if (!this._showShowMoreBtn) {
-        renderShowMoreBtn();
-      }
-    });
+    const renderedMovies = this._renderMovieList(
+        this._mainMovieList,
+        this._sort.getSortedMovies(this._movies, 0, this._shownMovies)
+    );
+    this._refreshMovieControllersInList(MovieListType.MAIN, renderedMovies);
+
+    if (!this._showShowMoreBtn) {
+      this._renderShowMoreBtn();
+    }
   }
 
   /**

@@ -33,7 +33,7 @@ export const MONTH_NAMES = [
  * @type {{}}
  */
 export const MOVIE_COUNT = {
-  TOTAL: 3,
+  TOTAL: 23,
   ON_START: 5,
   ON_BTN: 5,
   EXTRA: 2

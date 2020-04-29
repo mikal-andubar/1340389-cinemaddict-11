@@ -45,20 +45,13 @@ export default class MovieController {
     const oldMoviePopup = this._moviePopup;
 
     // Создание карточки фильма
-    this._movieCard = new MovieCard(this._movie);
-    this._movieCard.setOnPopupOpenClickHandler(this._showMoviePopup);
-    this._movieCard.setMovieCardBtnsHandler(this._onMovieCardBtnClick);
+    this._createMovieCard();
 
     // Созадание попапа
     this._moviePopup = new MoviePopup(this._movie);
 
     // Рендер карточки фильма
-    if (oldMovieCard && oldMoviePopup) {
-      replace(this._movieCard, oldMovieCard);
-      replace(this._moviePopup, oldMoviePopup);
-    } else {
-      componentRender(this._container, this._movieCard);
-    }
+    this._smartRender(oldMovieCard, oldMoviePopup);
   }
 
   /**
@@ -89,6 +82,31 @@ export default class MovieController {
     if (this._mode !== MovieCardModes.DEFAULT) {
       this._hideMoviePopup();
     }
+  }
+
+  /**
+   * Рендер с учетом возможности перерисовки компонентов
+   * @param {MovieCard} oldMovieCard
+   * @param {MoviePopup} oldMoviePopup
+   * @private
+   */
+  _smartRender(oldMovieCard, oldMoviePopup) {
+    if (oldMovieCard && oldMoviePopup) {
+      replace(this._movieCard, oldMovieCard);
+      replace(this._moviePopup, oldMoviePopup);
+    } else {
+      componentRender(this._container, this._movieCard);
+    }
+  }
+
+  /**
+   * Создает карточку фильма для данного котроллера
+   * @private
+   */
+  _createMovieCard() {
+    this._movieCard = new MovieCard(this._movie);
+    this._movieCard.setOnPopupOpenClickHandler(this._showMoviePopup);
+    this._movieCard.setMovieCardBtnsHandler(this._onMovieCardBtnClick);
   }
 
   /**

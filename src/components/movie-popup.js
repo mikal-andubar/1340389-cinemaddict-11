@@ -170,6 +170,9 @@ export default class MoviePopup extends AbstractSmartComponent {
 
     this._closeBtnHandler = null;
 
+    this._emojiClickHandler = this._emojiClickHandler.bind(this);
+    this._moviePopupBtnsHandler = this._moviePopupBtnsHandler.bind(this);
+
     this._subscribeOnEvents();
   }
 
@@ -207,46 +210,47 @@ export default class MoviePopup extends AbstractSmartComponent {
   _subscribeOnEvents() {
     const element = this.getElement();
 
-    /**
-     * Универсальный обработчик событий для элементов попапа
-     * @param {Event} event
-     */
-    const moviePopupBtnsHandler = (event) => {
-      event.preventDefault();
-
-      const buttonType = event.currentTarget.dataset.type;
-      const property = MovieCardButton[buttonType].property;
-
-      this._movie[property] = !this._movie[property];
-
-      this.rerender();
-    };
-
-    /**
-     * Обработчик кликов по смайликам
-     * @param {Event} event
-     */
-    const emojiClickHandler = (event) => {
-      const emojiName = event.currentTarget.value;
-
-      this._commentComponent.setCurrentEmoji(emojiName);
-
-      this.rerender();
-    };
-
     // Подпишем все кнопки на события
     Object.values(MOVIE_BUTTON).forEach((btnName) => {
       element.querySelector(`input[name=${btnName}]`)
-        .addEventListener(`change`, moviePopupBtnsHandler);
+        .addEventListener(`change`, this._moviePopupBtnsHandler);
     });
 
     // Подпишем кнопку закрытия попапа на события клика
     this.setOnPopupCloseClickHandler(this._closeBtnHandler);
 
+    // Подпишем радио-кнопки с эмодзи для комментариев на события клика
     Object.values(EmojiNames).forEach((emotion) => {
       element.querySelector(`#emoji-${emotion}`)
-        .addEventListener(`click`, emojiClickHandler);
+        .addEventListener(`click`, this._emojiClickHandler);
     });
+  }
+
+  /**
+   * Универсальный обработчик событий для элементов попапа
+   * @param {Event} event
+   */
+  _moviePopupBtnsHandler(event) {
+    event.preventDefault();
+
+    const buttonType = event.currentTarget.dataset.type;
+    const property = MovieCardButton[buttonType].property;
+
+    this._movie[property] = !this._movie[property];
+
+    this.rerender();
+  }
+
+  /**
+   * Обработчик кликов по смайликам
+   * @param {Event} event
+   */
+  _emojiClickHandler(event) {
+    const emojiName = event.currentTarget.value;
+
+    this._commentComponent.setCurrentEmoji(emojiName);
+
+    this.rerender();
   }
 }
 
