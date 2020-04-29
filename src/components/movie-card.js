@@ -1,6 +1,6 @@
 import AbstractComponent from "./abstract-component";
 
-import {clipText, formatDuration} from "../utils/common";
+import {clipText, formatDate, formatDuration} from "../utils/common";
 
 import {MOVIE_BUTTON, MovieCardButton} from "../constants";
 
@@ -39,6 +39,9 @@ const createMovieCardTemplate = (movie) => {
     isFavorite
   } = movie;
 
+  const displayDate = formatDate(releaseDate);
+  const displayDuration = formatDuration(duration);
+
   const watchlistBtn = createButtonMarkup(MOVIE_BUTTON.WATCHLIST, isInWatchlist);
   const watchedBtn = createButtonMarkup(MOVIE_BUTTON.WATCHED, isWatched);
   const favoriteBtn = createButtonMarkup(MOVIE_BUTTON.FAVORITE, isFavorite);
@@ -48,8 +51,8 @@ const createMovieCardTemplate = (movie) => {
       <h3 class="film-card__title">${title}</h3>
       <p class="film-card__rating">${rating}</p>
       <p class="film-card__info">
-        <span class="film-card__year">${releaseDate.getFullYear()}</span>
-        <span class="film-card__duration">${formatDuration(duration)}</span>
+        <span class="film-card__year">${displayDate}</span>
+        <span class="film-card__duration">${displayDuration}</span>
         <span class="film-card__genre">${genres[0]}</span>
       </p>
       <img src="${poster}" alt="" class="film-card__poster">

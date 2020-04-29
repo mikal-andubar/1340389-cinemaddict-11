@@ -1,4 +1,5 @@
-import {SortType} from "../constants";
+import {DATE_FORMAT, SortType} from "../constants";
+import moment from "moment";
 
 /**
  * Источник предложений для случайного текста
@@ -84,13 +85,6 @@ export const generateRandomText = (minSentencesQty, maxSentencesQty) => {
 };
 
 /**
- * Форматирует длительность фильма для отображения
- * @param {number} duration
- * @return {string}
- */
-export const formatDuration = (duration) => `${Math.floor(duration / 60)}h ${duration % 60}m`;
-
-/**
  * Обрезка строки до заданного лимита
  * @param {string} text
  * @param {number} limit
@@ -105,11 +99,11 @@ export const clipText = (text, limit) => text.length > limit ? `${text.slice(0, 
  */
 export const generatePerson = () => {
   const firstNames = [`James`, `John`, `Ben`, `Leonardo`, `Jennifer`, `Cortney`, `Cillian`, `Tom`];
-  const secondNames = [`Cameron`, `Carpenter`, `Affleck`, `DiCaprio`, `Aniston`, `Cox`, `Murphy`, `Hardy`];
+  const lastNames = [`Cameron`, `Carpenter`, `Affleck`, `DiCaprio`, `Aniston`, `Cox`, `Murphy`, `Hardy`];
 
   return {
     firstName: getRandomArrayItem(firstNames),
-    secondName: getRandomArrayItem(secondNames),
+    lastName: getRandomArrayItem(lastNames),
   };
 };
 
@@ -127,25 +121,27 @@ export const getPersonsList = (count) => {
 };
 
 /**
- * Добавление ведущего нуля
- * @param {number} value
+ * Форматирует длительность фильма для отображения
+ * @param {number} minutes
  * @return {string}
  */
-const castDateTimeFormat = (value) => value < 10 ? `0${value}` : String(value);
+export const formatDuration = (minutes) => {
+  const duration = moment.duration(minutes, `minutes`);
+  return `${duration.hours()}h ${duration.minutes()}m`;
+};
 
 /**
- * Форматирование времени
- * @param {Date} date
+ * Форматирует дату релиза
+ * @param {Date} releaseDate
+ * @param {string} format
  * @return {string}
  */
-export const formatTime = (date) => {
-  const year = date.getFullYear();
-  const month = castDateTimeFormat(date.getMonth() + 1);
-  const day = castDateTimeFormat(date.getDate());
-  const hours = castDateTimeFormat(date.getHours());
-  const minutes = castDateTimeFormat(date.getMinutes());
-
-  return `${year}/${month}/${day} ${hours}:${minutes}`;
+export const formatDate = (releaseDate, format = DATE_FORMAT.CARD) => {
+  const date = moment(releaseDate);
+  if (format === DATE_FORMAT.COMMENT) {
+    return date.fromNow();
+  }
+  return date.format(format);
 };
 
 /**

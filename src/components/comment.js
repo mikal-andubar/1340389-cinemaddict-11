@@ -1,8 +1,8 @@
 import AbstractComponent from "./abstract-component";
 
-import {formatTime} from "../utils/common";
+import {formatDate} from "../utils/common";
 
-import {Emojis} from "../constants";
+import {DATE_FORMAT, Emojis} from "../constants";
 
 /**
  * Создает шаблон со списком комменатриев
@@ -11,6 +11,8 @@ import {Emojis} from "../constants";
  */
 const createCommentMarkup = ({emoji, text, author, date}) => {
   const [smile, image] = emoji;
+  const displayDate = formatDate(date, DATE_FORMAT.COMMENT);
+  const displayAuthor = `${author.firstName} ${author.lastName}`;
 
   return (
     `<li class="film-details__comment">
@@ -20,8 +22,8 @@ const createCommentMarkup = ({emoji, text, author, date}) => {
     <div>
       <p class="film-details__comment-text">${text}</p>
       <p class="film-details__comment-info">
-        <span class="film-details__comment-author">${author}</span>
-        <span class="film-details__comment-day">${formatTime(date)}</span>
+        <span class="film-details__comment-author">${displayAuthor}</span>
+        <span class="film-details__comment-day">${displayDate}</span>
         <button class="film-details__comment-delete">Delete</button>
       </p>
     </div>
