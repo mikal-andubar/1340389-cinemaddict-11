@@ -39,6 +39,13 @@ const createPopupButtonMarkup = (type, isActive) => {
 };
 
 /**
+ * Возвращает строку со списком людей через запятую
+ * @param {{}[]} persons
+ * @return {string}
+ */
+const getPersonsList = (persons) => persons.map((person) => `${person.firstName} ${person.lastName}`).join(`, `).trim();
+
+/**
  * Создание шаблона с разметкой для попапа
  * @param {{}} movie
  * @param {string} commentsTemplate
@@ -65,8 +72,8 @@ const createMoviePopupTemplate = (movie, commentsTemplate) => {
   } = movie;
 
   const displayDate = formatDate(releaseDate, DATE_FORMAT.POPUP);
-  const writersList = writers.map((person) => `${person.firstName} ${person.lastName}`).join(`, `).trim();
-  const actorsList = actors.map((person) => `${person.firstName} ${person.lastName}`).join(`, `).trim();
+  const writersList = getPersonsList(writers);
+  const actorsList = getPersonsList(actors);
 
   const watchlistButton = createPopupButtonMarkup(MOVIE_BUTTON.WATCHLIST, isInWatchlist);
   const watchedButton = createPopupButtonMarkup(MOVIE_BUTTON.WATCHED, isWatched);

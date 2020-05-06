@@ -1,11 +1,24 @@
-import {DATE_FORMAT, SortType} from "../constants";
 import moment from "moment";
+
+import {DATE_FORMAT, SortType} from "../constants";
 
 /**
  * Источник предложений для случайного текста
  * @type {string}
  */
 const textSource = `Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras aliquet varius magna, non porta ligula feugiat eget. Fusce tristique felis at fermentum pharetra. Aliquam id orci ut lectus varius viverra. Nullam nunc ex, convallis sed finibus eget, sollicitudin eget ante. Phasellus eros mauris, condimentum sed nibh vitae, sodales efficitur ipsum. Sed blandit, eros vel aliquam faucibus, purus ex euismod diam, eu luctus nunc ante ut dui. Sed sed nisi sed augue convallis suscipit in sed felis. Aliquam erat volutpat. Nunc fermentum tortor ac porta dapibus. In rutrum ac purus sit amet tempus.`;
+
+/**
+ * Массив имен для генерации человека
+ * @type {string[]}
+ */
+const firstNames = [`James`, `John`, `Ben`, `Leonardo`, `Jennifer`, `Cortney`, `Cillian`, `Tom`];
+
+/**
+ * Массив фамилий для генерации человека
+ * @type {string[]}
+ */
+const lastNames = [`Cameron`, `Carpenter`, `Affleck`, `DiCaprio`, `Aniston`, `Cox`, `Murphy`, `Hardy`];
 
 /**
  * Прибавляет к числу numeric заданное addingValue
@@ -97,15 +110,12 @@ export const clipText = (text, limit) => text.length > limit ? `${text.slice(0, 
  * Генератор человека
  * @return {{}}
  */
-export const generatePerson = () => {
-  const firstNames = [`James`, `John`, `Ben`, `Leonardo`, `Jennifer`, `Cortney`, `Cillian`, `Tom`];
-  const lastNames = [`Cameron`, `Carpenter`, `Affleck`, `DiCaprio`, `Aniston`, `Cox`, `Murphy`, `Hardy`];
-
-  return {
+export const generatePerson = () => (
+  {
     firstName: getRandomArrayItem(firstNames),
     lastName: getRandomArrayItem(lastNames),
-  };
-};
+  }
+);
 
 /**
  * Возвращает массив персон
