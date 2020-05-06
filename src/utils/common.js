@@ -1,10 +1,24 @@
-import {SortType} from "../constants";
+import moment from "moment";
+
+import {DATE_FORMAT, SortType} from "../constants";
 
 /**
  * Источник предложений для случайного текста
  * @type {string}
  */
 const textSource = `Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras aliquet varius magna, non porta ligula feugiat eget. Fusce tristique felis at fermentum pharetra. Aliquam id orci ut lectus varius viverra. Nullam nunc ex, convallis sed finibus eget, sollicitudin eget ante. Phasellus eros mauris, condimentum sed nibh vitae, sodales efficitur ipsum. Sed blandit, eros vel aliquam faucibus, purus ex euismod diam, eu luctus nunc ante ut dui. Sed sed nisi sed augue convallis suscipit in sed felis. Aliquam erat volutpat. Nunc fermentum tortor ac porta dapibus. In rutrum ac purus sit amet tempus.`;
+
+/**
+ * Массив имен для генерации человека
+ * @type {string[]}
+ */
+const firstNames = [`James`, `John`, `Ben`, `Leonardo`, `Jennifer`, `Cortney`, `Cillian`, `Tom`];
+
+/**
+ * Массив фамилий для генерации человека
+ * @type {string[]}
+ */
+const lastNames = [`Cameron`, `Carpenter`, `Affleck`, `DiCaprio`, `Aniston`, `Cox`, `Murphy`, `Hardy`];
 
 /**
  * Прибавляет к числу numeric заданное addingValue
@@ -84,13 +98,6 @@ export const generateRandomText = (minSentencesQty, maxSentencesQty) => {
 };
 
 /**
- * Форматирует длительность фильма для отображения
- * @param {number} duration
- * @return {string}
- */
-export const formatDuration = (duration) => `${Math.floor(duration / 60)}h ${duration % 60}m`;
-
-/**
  * Обрезка строки до заданного лимита
  * @param {string} text
  * @param {number} limit
@@ -103,15 +110,12 @@ export const clipText = (text, limit) => text.length > limit ? `${text.slice(0, 
  * Генератор человека
  * @return {{}}
  */
-export const generatePerson = () => {
-  const firstNames = [`James`, `John`, `Ben`, `Leonardo`, `Jennifer`, `Cortney`, `Cillian`, `Tom`];
-  const secondNames = [`Cameron`, `Carpenter`, `Affleck`, `DiCaprio`, `Aniston`, `Cox`, `Murphy`, `Hardy`];
-
-  return {
+export const generatePerson = () => (
+  {
     firstName: getRandomArrayItem(firstNames),
-    secondName: getRandomArrayItem(secondNames),
-  };
-};
+    lastName: getRandomArrayItem(lastNames),
+  }
+);
 
 /**
  * Возвращает массив персон
@@ -127,25 +131,27 @@ export const getPersonsList = (count) => {
 };
 
 /**
- * Добавление ведущего нуля
- * @param {number} value
+ * Форматирует длительность фильма для отображения
+ * @param {number} minutes
  * @return {string}
  */
-const castDateTimeFormat = (value) => value < 10 ? `0${value}` : String(value);
+export const formatDuration = (minutes) => {
+  const duration = moment.duration(minutes, `minutes`);
+  return `${duration.hours()}h ${duration.minutes()}m`;
+};
 
 /**
- * Форматирование времени
- * @param {Date} date
+ * Форматирует дату релиза
+ * @param {Date} releaseDate
+ * @param {string} format
  * @return {string}
  */
-export const formatTime = (date) => {
-  const year = date.getFullYear();
-  const month = castDateTimeFormat(date.getMonth() + 1);
-  const day = castDateTimeFormat(date.getDate());
-  const hours = castDateTimeFormat(date.getHours());
-  const minutes = castDateTimeFormat(date.getMinutes());
-
-  return `${year}/${month}/${day} ${hours}:${minutes}`;
+export const formatDate = (releaseDate, format = DATE_FORMAT.CARD) => {
+  const date = moment(releaseDate);
+  if (format === DATE_FORMAT.COMMENT) {
+    return date.fromNow();
+  }
+  return date.format(format);
 };
 
 /**

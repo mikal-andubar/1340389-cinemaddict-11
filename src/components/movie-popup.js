@@ -1,9 +1,9 @@
 import Comment from "./comment";
 import AbstractSmartComponent from "./abstract-smart-component";
 
-import {formatDuration} from "../utils/common";
+import {formatDate, formatDuration} from "../utils/common";
 
-import {EmojiNames, MONTH_NAMES, MOVIE_BUTTON, MovieCardButton} from "../constants";
+import {DATE_FORMAT, EmojiNames, MOVIE_BUTTON, MovieCardButton} from "../constants";
 
 /**
  * Создание шаблона списка жанров
@@ -39,6 +39,13 @@ const createPopupButtonMarkup = (type, isActive) => {
 };
 
 /**
+ * Возвращает строку со списком людей через запятую
+ * @param {{}[]} persons
+ * @return {string}
+ */
+const getPersonsList = (persons) => persons.map((person) => `${person.firstName} ${person.lastName}`).join(`, `).trim();
+
+/**
  * Создание шаблона с разметкой для попапа
  * @param {{}} movie
  * @param {string} commentsTemplate
@@ -64,9 +71,9 @@ const createMoviePopupTemplate = (movie, commentsTemplate) => {
     isFavorite
   } = movie;
 
-  const dateString = `${releaseDate.getDate()} ${MONTH_NAMES[releaseDate.getMonth()]} ${releaseDate.getFullYear()}`;
-  const writersList = writers.map((person) => `${person.firstName} ${person.secondName}`).join(`, `).trim();
-  const actorsList = actors.map((person) => `${person.firstName} ${person.secondName}`).join(`, `).trim();
+  const displayDate = formatDate(releaseDate, DATE_FORMAT.POPUP);
+  const writersList = getPersonsList(writers);
+  const actorsList = getPersonsList(actors);
 
   const watchlistButton = createPopupButtonMarkup(MOVIE_BUTTON.WATCHLIST, isInWatchlist);
   const watchedButton = createPopupButtonMarkup(MOVIE_BUTTON.WATCHED, isWatched);
@@ -101,7 +108,7 @@ const createMoviePopupTemplate = (movie, commentsTemplate) => {
             <table class="film-details__table">
               <tr class="film-details__row">
                 <td class="film-details__term">Director</td>
-                <td class="film-details__cell">${director.firstName} ${director.secondName}</td>
+                <td class="film-details__cell">${director.firstName} ${director.lastName}</td>
               </tr>
               <tr class="film-details__row">
                 <td class="film-details__term">Writers</td>
@@ -113,7 +120,7 @@ const createMoviePopupTemplate = (movie, commentsTemplate) => {
               </tr>
               <tr class="film-details__row">
                 <td class="film-details__term">Release Date</td>
-                <td class="film-details__cell">${dateString}</td>
+                <td class="film-details__cell">${displayDate}</td>
               </tr>
               <tr class="film-details__row">
                 <td class="film-details__term">Runtime</td>

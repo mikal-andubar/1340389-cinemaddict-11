@@ -117,3 +117,9 @@ export const MovieCardModes = {
   DEFAULT: `default`,
   POPUP: `popup`,
 };
+
+export const DATE_FORMAT = {
+  CARD: `YYYY`,
+  POPUP: `DD MMMM YYYY`,
+  COMMENT: `fromnow`
+};
