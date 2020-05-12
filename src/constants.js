@@ -45,7 +45,8 @@ export const MOVIE_COUNT = {
  */
 export const KEY_CODE = {
   ESCAPE: `Escape`,
-  ESC: `Esc`
+  ESC: `Esc`,
+  ENTER: `Enter`,
 };
 
 /**
@@ -122,4 +123,31 @@ export const DATE_FORMAT = {
   CARD: `YYYY`,
   POPUP: `DD MMMM YYYY`,
   COMMENT: `fromnow`
+};
+
+/**
+ * Названия фильтров
+ * @type {{}}
+ */
+export const FilterConfig = {
+  ALL: {
+    name: `all`,
+    label: `All movies`,
+    property: null,
+  },
+  WATCHLIST: {
+    name: `watchlist`,
+    label: `Watchlist`,
+    property: `isInWatchlist`,
+  },
+  HISTORY: {
+    name: `history`,
+    label: `History`,
+    property: `isWatched`,
+  },
+  FAVORITES: {
+    name: `favorites`,
+    label: `Favorites`,
+    property: `isFavorite`,
+  },
 };
