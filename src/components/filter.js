@@ -1,23 +1,16 @@
-import AbstractComponent from "./abstract-component";
-
+import AbstractSmartComponent from "./abstract-smart-component";
 import {increaseInt} from "../utils/common";
+import {FilterConfig} from "../constants";
 
 /**
- * Названия фильтров
- * @type {{}}
+ * Пустой фильтр
+ * @type {({name: string, count: number, label: string}|{name: string, count: number, label: string}|{name: string, count: number, label: string}|{name: string, count: number, label: string})[]}
  */
-export const FilterNames = {
-  ALL: `all`,
-  WATCHLIST: `watchlist`,
-  HISTORY: `history`,
-  FAVORITES: `favorites`
-};
-
 const emptyFilters = [
-  {name: FilterNames.ALL, label: `All movies`, count: 0},
-  {name: FilterNames.WATCHLIST, label: `Watchlist`, count: 0},
-  {name: FilterNames.HISTORY, label: `History`, count: 0},
-  {name: FilterNames.FAVORITES, label: `Favorites`, count: 0},
+  {name: FilterConfig.ALL.name, label: FilterConfig.ALL.label, count: 0},
+  {name: FilterConfig.WATCHLIST.name, label: FilterConfig.WATCHLIST.label, count: 0},
+  {name: FilterConfig.HISTORY.name, label: FilterConfig.HISTORY.label, count: 0},
+  {name: FilterConfig.FAVORITES.name, label: FilterConfig.FAVORITES.label, count: 0},
 ];
 
 /**
@@ -31,23 +24,23 @@ export const generateFilters = (movies) => {
 
     return [
       {
-        name: FilterNames.ALL,
-        label: `All movies`,
+        name: FilterConfig.ALL.name,
+        label: FilterConfig.ALL.label,
         count: increaseInt(all),
       },
       {
-        name: FilterNames.WATCHLIST,
-        label: `Watchlist`,
+        name: FilterConfig.WATCHLIST.name,
+        label: FilterConfig.WATCHLIST.label,
         count: movie.isInWatchlist ? increaseInt(watchlist) : watchlist,
       },
       {
-        name: FilterNames.HISTORY,
-        label: `History`,
+        name: FilterConfig.HISTORY.name,
+        label: FilterConfig.HISTORY.label,
         count: movie.isWatched ? increaseInt(history) : history,
       },
       {
-        name: FilterNames.FAVORITES,
-        label: `Favorites`,
+        name: FilterConfig.FAVORITES.name,
+        label: FilterConfig.FAVORITES.label,
         count: movie.isFavorite ? increaseInt(favorites) : favorites,
       },
     ];
@@ -63,7 +56,7 @@ export const generateFilters = (movies) => {
 const createFilterMarkup = ({name, label, count}, index) => (
   `<a href="#${name}" class="main-navigation__item ${index === 0 ? `main-navigation__item--active` : ``}">
       ${label}
-      ${name !== FilterNames.ALL ? `<span class="main-navigation__item-count">${count}</span>` : ``}
+      ${name !== FilterConfig.ALL.name ? `<span class="main-navigation__item-count">${count}</span>` : ``}
   </a>`
 );
 
@@ -84,7 +77,7 @@ const createFiltersTemplate = (filters) => (
 /**
  * Класс для фильтров
  */
-export default class Filter extends AbstractComponent {
+export default class Filter extends AbstractSmartComponent {
   /**
    * Конструктор класса
    */
@@ -92,6 +85,7 @@ export default class Filter extends AbstractComponent {
     super();
 
     this._movies = [];
+    this._filterChangeHandler = null;
   }
 
   /**
@@ -109,6 +103,31 @@ export default class Filter extends AbstractComponent {
   getTemplate() {
     const filters = generateFilters(this._movies);
     return createFiltersTemplate(filters);
+  }
+
+  /**
+   * Устанавливает обработчик смены фильтра
+   * @param {function} handler
+   */
+  setFilterChangeHandler(handler) {
+    this.getElement()
+      .querySelectorAll(`.main-navigation__item`)
+      .forEach(
+          (item) => item.addEventListener(`click`, (event) => {
+            event.preventDefault();
+            const filterName = event.currentTarget.getAttribute(`href`).slice(1);
+            const selectedFilter = Object.values(FilterConfig).find((filter) => filter.name === filterName);
+            handler(selectedFilter);
+          })
+      );
+    this._filterChangeHandler = handler;
+  }
+
+  /**
+   * @inheritDoc
+   */
+  recoveryListeners() {
+    this.setFilterChangeHandler(this._filterChangeHandler);
   }
 }
 

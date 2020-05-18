@@ -1,13 +1,17 @@
 import UserProfile from "./components/user-profile";
+import Statistics from "./components/statistics";
+import Movies from "./models/movies";
+import Comments from "./models/comments";
 
 import PageController from "./controllers/page";
 
 import {generateMovies} from "./mock/movie";
 import {generateUser} from "./mock/user";
 import {componentRender} from "./utils/render";
+import {extractComments} from "./mock/comment";
 
 import {MOVIE_COUNT} from "./constants";
-import Statistics from "./components/statistics";
+import FilterController from "./controllers/filter";
 
 /**
  * Вся шапка сайта
@@ -34,6 +38,26 @@ const footerElement = document.querySelector(`.footer`);
 const movies = generateMovies(MOVIE_COUNT.TOTAL);
 
 /**
+ * Массив с комментариями
+ * @type {{}[]}
+ */
+const comments = extractComments(movies);
+
+/**
+ * Модель данных для списка фильмов
+ * @type {Movies}
+ */
+const moviesModel = new Movies();
+moviesModel.setMovies(movies);
+
+/**
+ * Модель данных для комментариев
+ * @type {Comments}
+ */
+const commentsModel = new Comments();
+commentsModel.setComments(comments);
+
+/**
  * Профиль пользователя
  * @type {UserProfile}
  */
@@ -42,13 +66,16 @@ const userProfile = new UserProfile(generateUser(movies));
 // Рендер аватара и звания пользователя в шапке
 componentRender(headerElement, userProfile);
 
+const filterController = new FilterController(mainElement, moviesModel);
+filterController.render();
+
 /**
  * Контроллер основного блока страницы
  * @type {PageController}
  */
-const pageController = new PageController(mainElement);
+const pageController = new PageController(mainElement, moviesModel, commentsModel, filterController);
 // Рендер основного блока страницы
-pageController.render(movies);
+pageController.render();
 
 /**
  * Раздел для отображения статистики
