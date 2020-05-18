@@ -8,6 +8,7 @@ import {remove, componentRender} from "../utils/render";
 import {increaseInt, getSortedMoviesBySortType} from "../utils/common";
 
 import {MOVIE_COUNT, SortType} from "../constants";
+import Statistics from "../components/statistics";
 
 /**
  * Поиск фильмов с наивысшими оценками
@@ -36,17 +37,20 @@ export default class PageController {
   /**
    * Конструктор принимает на вход контейнер, куда будет все отрисовывать
    * @param {Element} container
+   * @param {{}} userProfile
    * @param {{}} moviesModel
    * @param {{}} commentsModel
    * @param {{}} filterController
    */
-  constructor(container, moviesModel, commentsModel, filterController) {
+  constructor(container, userProfile, moviesModel, commentsModel, filterController) {
     this._container = container;
+    this._userProfile = userProfile;
     this._moviesModel = moviesModel;
     this._commentsModel = commentsModel;
     this._filterController = filterController;
 
     this._movieBoard = new MovieBoard();
+    this._statisticsComponent = new Statistics(this._userProfile, this._moviesModel);
     this._mainMovieList = new MovieList(`All movies. Upcoming`);
     this._emptyMovieList = new MovieList(`There are no movies in our database`, MovieListType.EMPTY);
     this._topRatedList = new MovieList(`Top rated`, MovieListType.EXTRA);
@@ -64,8 +68,10 @@ export default class PageController {
     this._onShowMoreBtnClick = this._onShowMoreBtnClick.bind(this);
     this._onSortTypeChangeHandler = this._onSortTypeChangeHandler.bind(this);
     this._onFilterChange = this._onFilterChange.bind(this);
-
+    this._onStatisticsView = this._onStatisticsView.bind(this);
     this._moviesModel.setFilterChangeHandler(this._onFilterChange);
+
+    this._filterController.setStatisticsViewHandler(this._onStatisticsView);
   }
 
   /**
@@ -101,6 +107,10 @@ export default class PageController {
     componentRender(this._movieBoard.getElement(), this._mostCommentedList);
     const mostCommentedMovies = this._renderMovieList(this._mostCommentedList, getMostCommentedMovies(movies));
     this._pushRenderedMovies(mostCommentedMovies);
+
+    // Рендер экрана статистика
+    componentRender(this._container, this._statisticsComponent);
+    this._statisticsComponent.hide();
 
     // Добавление обработчика события смены типа сортировки
     this._sort.setSortTypeChangeHandler(this._onSortTypeChangeHandler);
@@ -207,7 +217,6 @@ export default class PageController {
    * @param {string} listType
    * @param {MovieController[]} renderedMovies
    * @private
-   * TODO: Проверить на повторение кода и сделать универсальное решение
    */
   _refreshMovieControllersInList(listType, renderedMovies) {
     this._shownMoviesControllers.forEach((controller) => {
@@ -259,6 +268,18 @@ export default class PageController {
    * @private
    */
   _onFilterChange() {
+    this._sort.setCurrentSortType(SortType.DEFAULT);
     this._updateMovieList(this._mainMovieList, MOVIE_COUNT.ON_START);
+    this._statisticsComponent.hide();
+    this._movieBoard.show();
+  }
+
+  /**
+   * Обработчик переключения на просмотр статистики
+   * @private
+   */
+  _onStatisticsView() {
+    this._movieBoard.hide();
+    this._statisticsComponent.show();
   }
 }

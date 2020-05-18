@@ -2,6 +2,13 @@ import AbstractSmartComponent from "./abstract-smart-component";
 import {increaseInt} from "../utils/common";
 import {FilterConfig} from "../constants";
 
+const STATS_BTN_NAME = `stats`;
+
+const FILTER_BTN_CLASS = `main-navigation__item`;
+const STATS_BTN_CLASS = `main-navigation__additional`;
+
+const ACTIVE_FILTER_CLASS = `main-navigation__item--active`;
+
 /**
  * Пустой фильтр
  * @type {({name: string, count: number, label: string}|{name: string, count: number, label: string}|{name: string, count: number, label: string}|{name: string, count: number, label: string})[]}
@@ -54,9 +61,9 @@ export const generateFilters = (movies) => {
  * @return {string}
  */
 const createFilterMarkup = ({name, label, count}, index) => (
-  `<a href="#${name}" class="main-navigation__item ${index === 0 ? `main-navigation__item--active` : ``}">
+  `<a href="#${name}" class="${FILTER_BTN_CLASS} ${index === 0 ? ACTIVE_FILTER_CLASS : ``}">
       ${label}
-      ${name !== FilterConfig.ALL.name ? `<span class="main-navigation__item-count">${count}</span>` : ``}
+      ${name !== FilterConfig.ALL.name ? `<span class="${FILTER_BTN_CLASS}-count">${count}</span>` : ``}
   </a>`
 );
 
@@ -70,7 +77,7 @@ const createFiltersTemplate = (filters) => (
     <div class="main-navigation__items">
       ${filters.map(createFilterMarkup).join(`\n`)}
     </div>
-    <a href="#stats" class="main-navigation__additional">Stats</a>
+    <a href="#${STATS_BTN_NAME}" class="${STATS_BTN_CLASS}">Stats</a>
   </nav>`
 );
 
@@ -86,6 +93,7 @@ export default class Filter extends AbstractSmartComponent {
 
     this._movies = [];
     this._filterChangeHandler = null;
+    this._statisticsViewHandler = null;
   }
 
   /**
@@ -111,12 +119,13 @@ export default class Filter extends AbstractSmartComponent {
    */
   setFilterChangeHandler(handler) {
     this.getElement()
-      .querySelectorAll(`.main-navigation__item`)
+      .querySelectorAll(`.${FILTER_BTN_CLASS}`)
       .forEach(
           (item) => item.addEventListener(`click`, (event) => {
             event.preventDefault();
             const filterName = event.currentTarget.getAttribute(`href`).slice(1);
             const selectedFilter = Object.values(FilterConfig).find((filter) => filter.name === filterName);
+            this._activateNavigationBtn(filterName);
             handler(selectedFilter);
           })
       );
@@ -124,10 +133,54 @@ export default class Filter extends AbstractSmartComponent {
   }
 
   /**
+   * Устанавливает обработчик на переключение на отображение статистики
+   * @param {function} handler
+   */
+  setStatisticsViewHandler(handler) {
+    this.getElement()
+      .querySelector(`.${STATS_BTN_CLASS}`)
+      .addEventListener(`click`, () => {
+        this._activateNavigationBtn(`stats`);
+        handler();
+      });
+    this._statisticsViewHandler = handler;
+  }
+
+  /**
    * @inheritDoc
    */
   recoveryListeners() {
     this.setFilterChangeHandler(this._filterChangeHandler);
+    this.setStatisticsViewHandler(this._statisticsViewHandler);
+  }
+
+  /**
+   * Деактивирует все кнопки навигации
+   * @private
+   */
+  _deactivateNavigationBtns() {
+    this.getElement()
+      .querySelectorAll(`.${FILTER_BTN_CLASS},.${STATS_BTN_CLASS}`)
+      .forEach((btn) => {
+        btn.classList.remove(ACTIVE_FILTER_CLASS);
+      });
+  }
+
+  /**
+   * Активирует указанный пункт меню фильтров
+   * @param {string} activeBtnName
+   * @private
+   */
+  _activateNavigationBtn(activeBtnName) {
+    this._deactivateNavigationBtns();
+    this.getElement()
+      .querySelectorAll(`.${FILTER_BTN_CLASS},.${STATS_BTN_CLASS}`)
+      .forEach((btn) => {
+        const btnName = btn.getAttribute(`href`).slice(1);
+        if (btnName === activeBtnName) {
+          btn.classList.add(ACTIVE_FILTER_CLASS);
+        }
+      });
   }
 }
 

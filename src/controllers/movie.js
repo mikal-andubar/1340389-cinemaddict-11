@@ -1,4 +1,4 @@
-import {KEY_CODE, MovieCardButton, MovieCardModes} from "../constants";
+import {KEY_CODE, MOVIE_BUTTON, MovieCardButton, MovieCardModes} from "../constants";
 import MovieCard from "../components/movie-card";
 import MoviePopup from "../components/movie-popup";
 import {componentRender, remove, replace} from "../utils/render";
@@ -41,7 +41,6 @@ export default class MovieController {
 
     this._onMovieCardBtnClick = this._onMovieCardBtnClick.bind(this);
 
-    this._moviePopupBtnsHandler = this._moviePopupBtnsHandler.bind(this);
     this._emojiClickHandler = this._emojiClickHandler.bind(this);
     this._onCommentsDataChange = this._onCommentsDataChange.bind(this);
     this._commentTextEntryHandler = this._commentTextEntryHandler.bind(this);
@@ -143,26 +142,10 @@ export default class MovieController {
     this._moviePopup = new MoviePopup(this._movie);
 
     this._moviePopup.setOnPopupCloseClickHandler(this._hideMoviePopup);
-    this._moviePopup.setPopupBtnsHandler(this._moviePopupBtnsHandler);
+    this._moviePopup.setPopupBtnsHandler(this._onMovieCardBtnClick);
     this._moviePopup.setEmojiClickHandler(this._emojiClickHandler);
     this._moviePopup.setTextEntryHandler(this._commentTextEntryHandler);
     this._moviePopup.setFormSubmitHandler(this._submitCommentFormHandler);
-  }
-
-  /**
-   * Обработчик событий по кнопкам на карточке фильма
-   * @param {Event} event
-   * @private
-   */
-  _onMovieCardBtnClick(event) {
-    event.preventDefault();
-
-    const buttonType = event.currentTarget.dataset.type;
-    const property = MovieCardButton[buttonType].property;
-
-    this._onDataChange(this._movie, Object.assign({}, this._movie, {
-      [property]: !this._movie[property],
-    }));
   }
 
   /**
@@ -221,17 +204,22 @@ export default class MovieController {
   }
 
   /**
-   * Универсальный обработчик событий для элементов попапа
+   * Обработчик событий по кнопкам на карточке фильма
    * @param {Event} event
+   * @private
    */
-  _moviePopupBtnsHandler(event) {
+  _onMovieCardBtnClick(event) {
     event.preventDefault();
 
     const buttonType = event.currentTarget.dataset.type;
     const property = MovieCardButton[buttonType].property;
 
-    const newData = Object.assign({}, this._movie);
-    newData[property] = !this._movie[property];
+    const changingData = {[property]: !this._movie[property]};
+    if (property === MovieCardButton[[MOVIE_BUTTON.WATCHED]].property && changingData[property]) {
+      changingData.watchingDate = new Date();
+    }
+
+    const newData = Object.assign({}, this._movie, changingData);
 
     this._onDataChange(this._movie, newData);
   }

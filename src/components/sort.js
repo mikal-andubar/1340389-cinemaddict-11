@@ -58,16 +58,6 @@ export default class Sort extends AbstractComponent {
   }
 
   /**
-   * Снимает класс "sort__button--active" со всех кнопок сортировки
-   */
-  _deactivateSortBtns() {
-    const sortBtns = this.getElement().querySelectorAll(`.sort__button`);
-    sortBtns.forEach((btn) => {
-      btn.classList.remove(SORT_ACTIVE_CLASS);
-    });
-  }
-
-  /**
    * Возвращает шаблон элементов сортировки
    * @return {string}
    */
@@ -102,11 +92,43 @@ export default class Sort extends AbstractComponent {
         return;
       }
 
-      this._deactivateSortBtns();
-      sortBtn.classList.add(SORT_ACTIVE_CLASS);
-
-      this._currentSortType = sortType;
+      this.setCurrentSortType(sortType);
       handler(this._currentSortType);
+    });
+  }
+
+  /**
+   * Меняет тип сортировки
+   * @param {string} sortType
+   */
+  setCurrentSortType(sortType) {
+    this._currentSortType = sortType;
+
+    this._deactivateSortBtns();
+    this._activateSortBtn(sortType);
+  }
+
+  /**
+   * Устанавливает активной указанную кнопку сортировки
+   * @param {string} sortType
+   * @private
+   */
+  _activateSortBtn(sortType) {
+    const sortBtns = this.getElement().querySelectorAll(`.sort__button`);
+    sortBtns.forEach((btn) => {
+      if (btn.dataset.sortType === sortType) {
+        btn.classList.add(SORT_ACTIVE_CLASS);
+      }
+    });
+  }
+
+  /**
+   * Снимает класс "sort__button--active" со всех кнопок сортировки
+   */
+  _deactivateSortBtns() {
+    const sortBtns = this.getElement().querySelectorAll(`.sort__button`);
+    sortBtns.forEach((btn) => {
+      btn.classList.remove(SORT_ACTIVE_CLASS);
     });
   }
 }

@@ -42,6 +42,14 @@ export default class FilterController {
   }
 
   /**
+   * Пробрасывает обработчик в компонент
+   * @param {function} handler
+   */
+  setStatisticsViewHandler(handler) {
+    this._filter.setStatisticsViewHandler(handler);
+  }
+
+  /**
    * Обработчик смены фильтра
    * @param {{}} filter
    * @private

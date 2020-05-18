@@ -141,6 +141,17 @@ export const formatDuration = (minutes) => {
 };
 
 /**
+ * Форматирует длительность для страницы со статистикой
+ * @param {number} minutes
+ * @return {string}
+ */
+export const formatStatsDuration = (minutes) => {
+  const duration = moment.duration(minutes, `minutes`);
+  const totalHours = Math.floor(duration.asHours());
+  return `${totalHours} <span class="statistic__item-description">h</span> ${duration.minutes()} <span class="statistic__item-description">m</span>`;
+};
+
+/**
  * Форматирует дату релиза
  * @param {Date} releaseDate
  * @param {string} format
