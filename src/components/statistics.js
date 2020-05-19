@@ -5,7 +5,7 @@ import moment from "moment";
 import AbstractSmartComponent from "./abstract-smart-component";
 
 import {getMoviesByFilter} from "../utils/filter";
-import {FilterConfig} from "../constants";
+import {FilterConfig} from "../config";
 import {formatStatsDuration, increaseInt} from "../utils/common";
 
 /**
@@ -145,7 +145,7 @@ export default class Statistics extends AbstractSmartComponent {
    * @return {string}
    */
   _createStatisticsTemplate() {
-    const {rating, avatar} = this._userProfile.getUser();
+    const {rating, avatar} = this._userProfile.getUser() ? this._userProfile.getUser() : {};
 
     const watchedMovies = this._getWatchedMoviesForPeriod();
     const totalDuration = calculateWatchedMoviesDuration(watchedMovies);

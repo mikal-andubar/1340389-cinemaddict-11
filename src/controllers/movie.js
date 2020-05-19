@@ -1,8 +1,11 @@
-import {KEY_CODE, MOVIE_BUTTON, MovieCardButton, MovieCardModes} from "../constants";
 import MovieCard from "../components/movie-card";
 import MoviePopup from "../components/movie-popup";
-import {componentRender, remove, replace} from "../utils/render";
 import CommentController from "./comment";
+import Movie from "../models/movie";
+
+import {componentRender, remove, replace} from "../utils/render";
+import {KEY_CODE, MOVIE_BUTTON, MovieCardModes} from "../constants";
+import {MovieCardButton} from "../config";
 
 /**
  * Класс контроллера для карточки с фильмом
@@ -12,14 +15,14 @@ export default class MovieController {
   /**
    * Конструктор класса
    * @param {Element} container
-   * @param {string} listType
+   * @param {string} movieListName
    * @param {{}} commentsModel
    * @param {function} onDataChange
    * @param {function} onViewChange
    */
-  constructor(container, listType, commentsModel, onDataChange, onViewChange) {
+  constructor(container, movieListName, commentsModel, onDataChange, onViewChange) {
     this._container = container;
-    this._listType = listType;
+    this._movieListName = movieListName;
     this._commentsModel = commentsModel;
     this._movie = {};
 
@@ -27,9 +30,6 @@ export default class MovieController {
 
     this._movieCard = null;
     this._moviePopup = null;
-
-    this._commentControllers = [];
-
 
     this._onDataChange = onDataChange;
     this._onViewChange = onViewChange;
@@ -71,8 +71,8 @@ export default class MovieController {
    * Возвращает тип списка фильмов
    * @return {string}
    */
-  getListType() {
-    return this._listType;
+  getMovieListName() {
+    return this._movieListName;
   }
 
   /**
@@ -219,7 +219,11 @@ export default class MovieController {
       changingData.watchingDate = new Date();
     }
 
-    const newData = Object.assign({}, this._movie, changingData);
+    const newData = Movie.clone(this._movie);
+    newData[property] = !this._movie[property];
+    if (property === MovieCardButton[[MOVIE_BUTTON.WATCHED]].property && newData.isWatched) {
+      newData.watchingDate = new Date();
+    }
 
     this._onDataChange(this._movie, newData);
   }

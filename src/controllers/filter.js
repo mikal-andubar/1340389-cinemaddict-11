@@ -16,21 +16,12 @@ export default class FilterController {
     this._container = container;
     this._moviesModel = moviesModel;
 
-    this._filter = null;
-
-    this._onFilterChange = this._onFilterChange.bind(this);
-  }
-
-  /**
-   * Отрисовка фильтров
-   */
-  render() {
     this._filter = new FilterComponent();
 
-    this._filter.setMovies(this._moviesModel.getAllMovies());
-    componentRender(this._container, this._filter);
-
+    this._onFilterChange = this._onFilterChange.bind(this);
     this._filter.setFilterChangeHandler(this._onFilterChange);
+
+    componentRender(this._container, this._filter);
   }
 
   /**

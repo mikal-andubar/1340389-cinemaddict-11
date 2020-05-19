@@ -2,7 +2,8 @@ import AbstractSmartComponent from "./abstract-smart-component";
 
 import {formatDate, formatDuration} from "../utils/common";
 
-import {DATE_FORMAT, EmojiNames, Emojis, MOVIE_BUTTON, MovieCardButton} from "../constants";
+import {DATE_FORMAT, EmojiNames, Emojis, MOVIE_BUTTON} from "../constants";
+import {MovieCardButton} from "../config";
 
 const emptyComment = {
   id: ``,
@@ -50,7 +51,7 @@ const createPopupButtonMarkup = (type, isActive) => {
  * @param {{}[]} persons
  * @return {string}
  */
-const getPersonsList = (persons) => persons.map((person) => `${person.firstName} ${person.lastName}`).join(`, `).trim();
+const getPersonsList = (persons) => persons.map((person) => `${person}`).join(`, `).trim();
 
 /**
  * Создание разметки эмоджи
@@ -306,7 +307,7 @@ export default class MoviePopup extends AbstractSmartComponent {
                 <table class="film-details__table">
                   <tr class="film-details__row">
                     <td class="film-details__term">Director</td>
-                    <td class="film-details__cell">${director.firstName} ${director.lastName}</td>
+                    <td class="film-details__cell">${director}</td>
                   </tr>
                   <tr class="film-details__row">
                     <td class="film-details__term">Writers</td>

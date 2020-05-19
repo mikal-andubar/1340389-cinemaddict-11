@@ -1,17 +1,17 @@
 import UserProfile from "./components/user-profile";
+import FooterStatistics from "./components/footer-statistics";
 import Movies from "./models/movies";
 import Comments from "./models/comments";
 
+import API from "./api";
+
 import PageController from "./controllers/page";
-
-import {generateMovies} from "./mock/movie";
-import {generateUser} from "./mock/user";
-import {componentRender} from "./utils/render";
-import {extractComments} from "./mock/comment";
-
-import {MOVIE_COUNT} from "./constants";
 import FilterController from "./controllers/filter";
-import FooterStatistics from "./components/footer-statistics";
+
+import {componentRender} from "./utils/render";
+
+const AUTHORIZATION = `Basic werkgjhwe352nkwfj=`;
+const BASE_URL = `https://11.ecmascript.pages.academy/cinemaddict`;
 
 /**
  * Вся шапка сайта
@@ -32,55 +32,65 @@ const mainElement = document.querySelector(`.main`);
 const footerElement = document.querySelector(`.footer`);
 
 /**
- * Массив объектов с фильмами
- * @type {{}[]}
+ * API для работы с сервером
+ * @type {API}
  */
-const movies = generateMovies(MOVIE_COUNT.TOTAL);
-
-/**
- * Массив с комментариями
- * @type {{}[]}
- */
-const comments = extractComments(movies);
+const api = new API(BASE_URL, AUTHORIZATION);
 
 /**
  * Модель данных для списка фильмов
  * @type {Movies}
  */
 const moviesModel = new Movies();
-moviesModel.setMovies(movies);
 
 /**
  * Модель данных для комментариев
  * @type {Comments}
  */
 const commentsModel = new Comments();
-commentsModel.setComments(comments);
 
 /**
- * Профиль пользователя
+ * Компонент, отображающий профиль пользователя
  * @type {UserProfile}
  */
-const userProfile = new UserProfile(generateUser(movies));
+const userProfile = new UserProfile(moviesModel);
 
-// Рендер аватара и звания пользователя в шапке
-componentRender(headerElement, userProfile);
-
+/**
+ * Контроллер фильтров
+ * @type {FilterController}
+ */
 const filterController = new FilterController(mainElement, moviesModel);
-filterController.render();
 
 /**
  * Контроллер основного блока страницы
  * @type {PageController}
  */
-const pageController = new PageController(mainElement, userProfile, moviesModel, commentsModel, filterController);
-// Рендер основного блока страницы
-pageController.render();
+const pageController = new PageController(mainElement, userProfile, moviesModel, commentsModel, filterController, api);
 
 /**
  * Раздел для отображения статистики
  * @type {Element}
  */
 const footerStatisticsElement = footerElement.querySelector(`.footer__statistics`);
-// Рендер статистики в подвале
-componentRender(footerStatisticsElement, new FooterStatistics(movies.length));
+
+pageController.init();
+
+api.getMovies()
+  .then((movies) => {
+    moviesModel.setMovies(movies);
+    userProfile.refreshUser(movies);
+
+    componentRender(headerElement, userProfile);
+    filterController.refresh();
+    pageController.render();
+    componentRender(footerStatisticsElement, new FooterStatistics(movies.length));
+
+    api.getComments(movies).then((comments) => {
+      commentsModel.setComments(comments);
+    });
+  })
+  .catch(() => {
+    componentRender(headerElement, userProfile);
+    pageController.render();
+    componentRender(footerStatisticsElement, new FooterStatistics(0));
+  });

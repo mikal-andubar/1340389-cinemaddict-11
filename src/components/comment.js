@@ -37,7 +37,6 @@ export default class Comment extends AbstractComponent {
   _createCommentTemplate({id, emoji, text: notEncodedText, author, date}) {
     const [smile, image] = emoji;
     const displayDate = formatDate(date, DATE_FORMAT.COMMENT);
-    const displayAuthor = `${author.firstName} ${author.lastName}`;
     const text = encode(notEncodedText);
 
     return (
@@ -48,7 +47,7 @@ export default class Comment extends AbstractComponent {
         <div>
           <p class="film-details__comment-text">${text}</p>
           <p class="film-details__comment-info">
-            <span class="film-details__comment-author">${displayAuthor}</span>
+            <span class="film-details__comment-author">${author}</span>
             <span class="film-details__comment-day">${displayDate}</span>
             <button class="film-details__comment-delete" data-target="${id}">Delete</button>
           </p>
