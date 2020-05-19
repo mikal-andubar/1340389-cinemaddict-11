@@ -55,7 +55,10 @@ const generateTitle = () => {
 const getGenresList = (count) => {
   let movieGenres = [];
   for (let i = 0; i < count; i++) {
-    movieGenres.push(getRandomArrayItem(genres));
+    const newGenre = getRandomArrayItem(genres);
+    if (!movieGenres.includes(newGenre)) {
+      movieGenres.push(getRandomArrayItem(genres));
+    }
   }
   return movieGenres;
 };
@@ -71,6 +74,7 @@ const generateMovie = (movie, index) => {
   const originalTitle = title;
 
   const isWatched = getRandomBool();
+  const releaseDate = generateRandomDate(1930, 2020);
 
   return {
     id: index,
@@ -81,7 +85,7 @@ const generateMovie = (movie, index) => {
     actors: getPersonsList(getRandomInt(3, 5)),
     country: getRandomArrayItem(countries),
     rating: getRandomDecimal(5, 10),
-    releaseDate: generateRandomDate(1930, 2020),
+    releaseDate,
     duration: getRandomInt(60, 180),
     genres: getGenresList(getRandomInt(2, 5)),
     poster: getRandomArrayItem(posters),
@@ -90,6 +94,7 @@ const generateMovie = (movie, index) => {
     isWatched,
     isInWatchlist: isWatched ? false : getRandomBool(),
     isFavorite: isWatched ? getRandomBool() : false,
+    watchingDate: isWatched ? generateRandomDate(releaseDate.getFullYear(), 2020) : null,
     comments: generateComments(getRandomInt(0, 6)),
   };
 };

@@ -33,5 +33,13 @@ export default class UserProfile extends AbstractComponent {
   getTemplate() {
     return createUserProfileTemplate(this._user);
   }
+
+  /**
+   * Возвращает данные пользователя
+   * @return {{}}
+   */
+  getUser() {
+    return this._user;
+  }
 }
 

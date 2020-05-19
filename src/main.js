@@ -1,5 +1,4 @@
 import UserProfile from "./components/user-profile";
-import Statistics from "./components/statistics";
 import Movies from "./models/movies";
 import Comments from "./models/comments";
 
@@ -12,6 +11,7 @@ import {extractComments} from "./mock/comment";
 
 import {MOVIE_COUNT} from "./constants";
 import FilterController from "./controllers/filter";
+import FooterStatistics from "./components/footer-statistics";
 
 /**
  * Вся шапка сайта
@@ -73,7 +73,7 @@ filterController.render();
  * Контроллер основного блока страницы
  * @type {PageController}
  */
-const pageController = new PageController(mainElement, moviesModel, commentsModel, filterController);
+const pageController = new PageController(mainElement, userProfile, moviesModel, commentsModel, filterController);
 // Рендер основного блока страницы
 pageController.render();
 
@@ -83,4 +83,4 @@ pageController.render();
  */
 const footerStatisticsElement = footerElement.querySelector(`.footer__statistics`);
 // Рендер статистики в подвале
-componentRender(footerStatisticsElement, new Statistics(movies.length));
+componentRender(footerStatisticsElement, new FooterStatistics(movies.length));
