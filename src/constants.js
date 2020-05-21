@@ -94,10 +94,20 @@ export const MovieListType = {
   EXTRA: `extra`,
 };
 
-export const MOVIE_LIST_KEY = {
+/**
+ * Списки фильмов
+ * @type {{}}
+ */
+export const MovieListKey = {
   MAIN: `main`,
   TOP_RATED: `top_rated`,
   MOST_COMMENTED: `most_commented`,
   EMPTY: `empty`,
   LOADING: `loading`,
 };
+
+/**
+ * Время эффекта "покачивания головой"
+ * @type {number}
+ */
+export const SHAKE_TIME = 500;

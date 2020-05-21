@@ -6,6 +6,7 @@ import Movie from "../models/movie";
 import {componentRender, remove, replace} from "../utils/render";
 import {KEY_CODE, MOVIE_BUTTON, MovieCardModes} from "../constants";
 import {MovieCardButton} from "../config";
+import {shake} from "../utils/effects";
 
 /**
  * Класс контроллера для карточки с фильмом
@@ -19,17 +20,30 @@ export default class MovieController {
    * @param {{}} commentsModel
    * @param {function} onDataChange
    * @param {function} onViewChange
+   * @param {function} askBoardToUpdateLists
+   * @param {API} api
    */
-  constructor(container, movieListName, commentsModel, onDataChange, onViewChange) {
+  constructor(container,
+      movieListName,
+      commentsModel,
+      onDataChange,
+      onViewChange,
+      askBoardToUpdateLists,
+      api
+  ) {
     this._container = container;
     this._movieListName = movieListName;
     this._commentsModel = commentsModel;
     this._movie = {};
+    this._api = api;
+
+    this._commentControllers = [];
 
     this._mode = MovieCardModes.DEFAULT;
 
     this._movieCard = null;
     this._moviePopup = null;
+    this._moviePopupInitialPos = 0;
 
     this._onDataChange = onDataChange;
     this._onViewChange = onViewChange;
@@ -42,9 +56,14 @@ export default class MovieController {
     this._onMovieCardBtnClick = this._onMovieCardBtnClick.bind(this);
 
     this._emojiClickHandler = this._emojiClickHandler.bind(this);
-    this._onCommentsDataChange = this._onCommentsDataChange.bind(this);
+
+    this._removeComment = this._removeComment.bind(this);
+    this._updateComments = this._updateComments.bind(this);
+
     this._commentTextEntryHandler = this._commentTextEntryHandler.bind(this);
     this._submitCommentFormHandler = this._submitCommentFormHandler.bind(this);
+
+    this._askBoardToUpdateLists = askBoardToUpdateLists;
   }
 
   /**
@@ -77,11 +96,10 @@ export default class MovieController {
 
   /**
    * Изменение данных и перерисовка компонента
-   * @param {{}} oldData
    * @param {{}} newData
    */
-  changeData(oldData, newData) {
-    if (oldData.id !== this._movie.id) {
+  changeData(newData) {
+    if (newData.id !== this._movie.id) {
       return;
     }
 
@@ -114,13 +132,14 @@ export default class MovieController {
    */
   _smartRender(oldMovieCard, oldMoviePopup) {
     if (oldMovieCard && oldMoviePopup) {
+      this._moviePopupInitialPos = oldMoviePopup.getCurrentPos();
       replace(this._movieCard, oldMovieCard);
       replace(this._moviePopup, oldMoviePopup);
     } else {
       componentRender(this._container, this._movieCard);
     }
     if (this._mode === MovieCardModes.POPUP) {
-      this._renderCommentsList(this._movie.comments);
+      this._refreshMoviePopup();
     }
   }
 
@@ -150,15 +169,16 @@ export default class MovieController {
 
   /**
    * Рендер комментариев
-   * @param {[]} commentIds
    * @private
    */
-  _renderCommentsList(commentIds) {
-    this._commentControllers = commentIds.map((commentId) => {
+  _renderCommentsList() {
+    this._commentControllers = this._movie.comments.map((commentId) => {
       const commentController = new CommentController(
           this._moviePopup.getElement().querySelector(`.film-details__comments-list`),
           this._commentsModel,
-          this._onCommentsDataChange
+          this._removeComment,
+          this._updateComments,
+          this._api
       );
       commentController.render(commentId);
 
@@ -174,7 +194,7 @@ export default class MovieController {
     componentRender(document.body, this._moviePopup);
 
     this._moviePopup.recoveryListeners();
-    this._renderCommentsList(this._movie.comments);
+    this._renderCommentsList();
 
     document.addEventListener(`keydown`, this._onEscBtnDown);
     this._mode = MovieCardModes.POPUP;
@@ -189,6 +209,7 @@ export default class MovieController {
     this._moviePopup.emptyNewComment();
     document.removeEventListener(`keydown`, this._onEscBtnDown);
     this._mode = MovieCardModes.DEFAULT;
+    this._askBoardToUpdateLists();
   }
 
   /**
@@ -214,14 +235,13 @@ export default class MovieController {
     const buttonType = event.currentTarget.dataset.type;
     const property = MovieCardButton[buttonType].property;
 
-    const changingData = {[property]: !this._movie[property]};
-    if (property === MovieCardButton[[MOVIE_BUTTON.WATCHED]].property && changingData[property]) {
-      changingData.watchingDate = new Date();
-    }
-
     const newData = Movie.clone(this._movie);
     newData[property] = !this._movie[property];
-    if (property === MovieCardButton[[MOVIE_BUTTON.WATCHED]].property && newData.isWatched) {
+
+    // Проверка на то, что фильм только что получил признак "просмотрен"
+    const isJustWatched = MovieCardButton[[MOVIE_BUTTON.WATCHED]].property && newData.isWatched;
+
+    if (isJustWatched) {
       newData.watchingDate = new Date();
     }
 
@@ -236,6 +256,7 @@ export default class MovieController {
   _emojiClickHandler(event) {
     const emojiName = event.currentTarget.value;
     this._moviePopup.setCurrentEmoji(emojiName);
+    this._moviePopupInitialPos = this._moviePopup.getCurrentPos();
 
     this._refreshMoviePopup();
   }
@@ -246,6 +267,7 @@ export default class MovieController {
    * @private
    */
   _commentTextEntryHandler(event) {
+    this._moviePopup.refreshNewCommentForm();
     this._moviePopup.setNewCommentText(event.target.value);
   }
 
@@ -259,39 +281,56 @@ export default class MovieController {
       if (!this._moviePopup.getCurrentEmoji()) {
         return;
       }
+      this._moviePopup.refreshNewCommentForm();
+      this._moviePopup.disableNewCommentForm();
+
       const newCommentController = new CommentController(
           this._moviePopup.getElement().querySelector(`.film-details__comments-list`),
           this._commentsModel,
-          this._onCommentsDataChange
+          this._removeComment,
+          this._updateComments,
+          this._api
       );
-      newCommentController.addComment(this._moviePopup.getNewComment());
+
+      this._commentControllers.push(newCommentController);
+
+      newCommentController.addComment(this._movie.id, this._moviePopup.getNewComment())
+        .catch(() => {
+          shake(this._moviePopup);
+          this._moviePopup.enableNewCommentForm();
+          this._moviePopup.markNewCommentFormError();
+        });
     }
   }
 
   /**
-   * Обработчик изменения комментариев
-   * @param {{}} oldData
-   * @param {{}} newData
+   * Обновляет комментарии у текущего фильма
+   * @param {Comment[]} comments
    * @private
    */
-  _onCommentsDataChange(oldData, newData) {
-    switch (true) {
-      case newData === null:
-        this._removeCommentFromMovie(oldData.id);
-        this._commentsModel.remove(oldData.id);
+  _updateComments(comments) {
+    const newData = Movie.clone(this._movie);
+    this._commentsModel.addComments(comments);
+    newData.comments = comments.map((comment) => comment.id);
+    this._moviePopup.emptyNewComment();
 
-        this._onDataChange(this._movie, this._movie);
-        this._refreshMoviePopup();
-        break;
-      case oldData === null:
-        this._commentsModel.add(newData);
-        this._addCommentToMovie(newData);
-        this._moviePopup.emptyNewComment();
+    this._onDataChange(this._movie, newData);
+    this._refreshMoviePopup();
+  }
 
-        this._onDataChange(this._movie, this._movie);
-        this._refreshMoviePopup();
-        break;
-    }
+  /**
+   * Удаляет один из комментариев с попапа
+   * @param {number} commentId
+   * @private
+   */
+  _removeComment(commentId) {
+    const oldData = Movie.clone(this._movie);
+    this._removeCommentFromMovie(commentId);
+    this._commentsModel.remove(commentId);
+    this._moviePopupInitialPos = this._moviePopup.getCurrentPos();
+
+    this._onDataChange(oldData, this._movie);
+    this._refreshMoviePopup();
   }
 
   /**
@@ -300,16 +339,8 @@ export default class MovieController {
    */
   _refreshMoviePopup() {
     this._moviePopup.rerender();
-    this._renderCommentsList(this._movie.comments);
-  }
-
-  /**
-   * Добавляет комментарий к текущему фильму
-   * @param {{}} comment
-   * @private
-   */
-  _addCommentToMovie(comment) {
-    this._movie.comments.push(comment.id);
+    this._renderCommentsList();
+    this._moviePopup.setCurrentPos(this._moviePopupInitialPos);
   }
 
   /**
@@ -318,16 +349,18 @@ export default class MovieController {
    * @private
    */
   _removeCommentFromMovie(commentId) {
-    const movie = this._movie;
     if (this._movie === {}) {
       return;
     }
+
+    const movie = this._movie;
     const comments = movie.comments;
     const index = comments.findIndex((it) => it === commentId);
     if (index === -1) {
       return;
     }
-    movie.comments = [].concat(comments.slice(0, index), comments.slice(index + 1));
+
+    movie.comments = [].concat(comments.slice(0, index), comments.slice(index + 1));// TODO: Написать функцию для удаления из массива по индексу
   }
 
 }

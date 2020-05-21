@@ -1,4 +1,5 @@
 import AbstractSmartComponent from "./abstract-smart-component";
+import Comment from "../models/comment";
 
 import {formatDate, formatDuration} from "../utils/common";
 
@@ -6,10 +7,8 @@ import {DATE_FORMAT, EmojiNames, Emojis, MOVIE_BUTTON} from "../constants";
 import {MovieCardButton} from "../config";
 
 const emptyComment = {
-  id: ``,
-  emoji: null,
-  text: ``,
-  author: null,
+  emotion: ``,
+  comment: ``,
   date: null,
 };
 
@@ -112,7 +111,7 @@ export default class MoviePopup extends AbstractSmartComponent {
    * Делает пустым текущий комментарий
    */
   emptyNewComment() {
-    this._newComment = Object.assign({}, emptyComment);
+    this._newComment = Comment.parseComment(emptyComment);
   }
 
   /**
@@ -217,6 +216,50 @@ export default class MoviePopup extends AbstractSmartComponent {
     });
 
     this._moviePopupBtnsHandler = handler;
+  }
+
+  /**
+   * Возвращает текущую позицию элемента попапа
+   * @return {number|string}
+   */
+  getCurrentPos() {
+    return this.getElement().scrollTop;
+  }
+
+  /**
+   * Устанавливает позицию элемента
+   * @param {number} position
+   */
+  setCurrentPos(position) {
+    this.getElement().scrollTop = position;
+  }
+
+  /**
+   * Блокирует форму ввода нового комментария
+   */
+  disableNewCommentForm() {
+    this.getElement().querySelector(`.film-details__comment-input`).disabled = true;
+  }
+
+  /**
+   * Разблокирует форму ввода нового комментария
+   */
+  enableNewCommentForm() {
+    this.getElement().querySelector(`.film-details__comment-input`).disabled = false;
+  }
+
+  /**
+   * Добавляет красную обводку поля ввода при ошибке
+   */
+  markNewCommentFormError() {
+    this.getElement().querySelector(`.film-details__comment-input`).classList.add(`textarea-error`);
+  }
+
+  /**
+   * Убирает пометку об ошибке с прошлой отправки
+   */
+  refreshNewCommentForm() {
+    this.getElement().querySelector(`.film-details__comment-input`).classList.remove(`textarea-error`);
   }
 
   /**

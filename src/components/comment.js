@@ -30,6 +30,16 @@ export default class Comment extends AbstractComponent {
   }
 
   /**
+   * Устанавливает обработчик клика по кнопке удаления комментария
+   * @param {function} handler
+   */
+  setDeleteBtnClickHandler(handler) {
+    this.getElement()
+      .querySelector(`.film-details__comment-delete`)
+      .addEventListener(`click`, handler);
+  }
+
+  /**
    * Создает шаблон со списком комменатриев
    * @param {{}} comment
    * @return {string}

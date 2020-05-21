@@ -8,19 +8,13 @@ import Comment from "./models/comment";
 const Method = {
   GET: `GET`,
   PUT: `PUT`,
+  POST: `POST`,
+  DELETE: `DELETE`,
 };
 
-/**
- * Проверяет статус ответа сервера
- * @param {Response} response
- * @return {*}
- */
-const checkStatus = (response) => {
-  if (response.status >= 200 && response.status < 300) {
-    return response;
-  } else {
-    throw new Error(`${response.status}: ${response.statusText}`);
-  }
+const ResponseCode = {
+  OK: 200,
+  MULTI_CHOICES: 300,
 };
 
 /**
@@ -30,12 +24,10 @@ const checkStatus = (response) => {
 const API = class {
   /**
    * Конструктор класса
-   * @param {string} baseUrl
-   * @param {string} auth
    */
-  constructor(baseUrl, auth) {
-    this._baseUrl = baseUrl;
-    this._auth = auth;
+  constructor() {
+    this._baseUrl = `https://11.ecmascript.pages.academy/cinemaddict`;
+    this._auth = `Basic werkgjhwe352nkwfj=`;
   }
 
   /**
@@ -87,6 +79,37 @@ const API = class {
   }
 
   /**
+   * Добавляет комментарий на сервер
+   * @param {number} movieId
+   * @param {Comment} newData
+   * @return {Promise<any>}
+   */
+  addComment(movieId, newData) {
+    return this._request({
+      url: `comments/${movieId}`,
+      method: Method.POST,
+      body: JSON.stringify(newData.toServerStructure()),
+      headers: new Headers({"Content-Type": `application/json`}),
+    })
+      .then((response) => response.json())
+      .then((response) => {
+        return response.comments;
+      });
+  }
+
+  /**
+   * Удаляет комментарий на сервере
+   * @param {number} commentId
+   * @return {Promise}
+   */
+  deleteComment(commentId) {
+    return this._request({
+      url: `comments/${commentId}`,
+      method: Method.DELETE,
+    });
+  }
+
+  /**
    * Выполняет запрос к серверу
    * @param {{}} params
    * @return {Promise<Response>}
@@ -96,10 +119,23 @@ const API = class {
     headers.append(`Authorization`, this._auth);
 
     return fetch(`${this._baseUrl}/${url}`, {method, body, headers})
-      .then(checkStatus)
+      .then(this._checkStatus)
       .catch((error) => {
         throw error;
       });
+  }
+
+  /**
+   * Проверяет статус ответа сервера
+   * @param {Response} response
+   * @return {*}
+   * @private
+   */
+  _checkStatus(response) {
+    if (response.status >= ResponseCode.OK && response.status < ResponseCode.MULTI_CHOICES) {
+      return response;
+    }
+    throw new Error(`${response.status}: ${response.statusText}`);
   }
 
 };

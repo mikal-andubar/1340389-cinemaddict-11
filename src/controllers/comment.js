@@ -1,26 +1,42 @@
+import Comment from "../models/comment";
+import CommentComponent from "../components/comment";
+
+import {componentRender} from "../utils/render";
+
+import {shake} from "../utils/effects";
+
+/**
+ * Состояния кнопки удаления
+ * @type {{}}
+ */
+const DELETE_BTN_STATE = {
+  READY: `Delete`,
+  BUSY: `Deleting...`,
+};
+
 /**
  * Контроллер для комментария
  */
-import Comment from "../components/comment";
-import {componentRender} from "../utils/render";
-import {generatePerson, getRandomInt} from "../utils/common";
-
 export default class CommentController {
 
   /**
    * Конструктор класса
    * @param {Element} container
    * @param {{}} commentsModel
-   * @param {function} onDataChange
+   * @param {function} removeComment
+   * @param {function} updateComments
+   * @param {API} api
    */
-  constructor(container, commentsModel, onDataChange) {
+  constructor(container, commentsModel, removeComment, updateComments, api) {
     this._container = container;
     this._commentsModel = commentsModel;
+    this._api = api;
 
-    this._comment = null;
+    this._comment = Comment.parseComment({});
     this._commentComponent = null;
 
-    this._onDataChange = onDataChange;
+    this._removeComment = removeComment;
+    this._updateComments = updateComments;
 
     this._deleteCommentBtnClickHandler = this._deleteCommentBtnClickHandler.bind(this);
   }
@@ -31,24 +47,43 @@ export default class CommentController {
    */
   render(commentId) {
     this._comment = this._commentsModel.find(commentId);
-    this._commentComponent = new Comment(this._comment);
+    this._commentComponent = new CommentComponent(this._comment);
 
     componentRender(this._container, this._commentComponent);
 
-    const deleteButton = this._commentComponent.getElement().querySelector(`.film-details__comment-delete`);
-    deleteButton.addEventListener(`click`, this._deleteCommentBtnClickHandler);
+    this._commentComponent.setDeleteBtnClickHandler(this._deleteCommentBtnClickHandler);
   }
 
   /**
    * Добавляет комментарий
-   * @param {{}} comment
+   * @param {number} movieId
+   * @param {Comment} comment
+   * @return {Promise}
    */
-  addComment(comment) {
-    comment.author = generatePerson();
+  addComment(movieId, comment) {
     comment.date = new Date();
-    comment.id = Date.now().toString() + getRandomInt(1, 1000).toString();
     this._comment = comment;
-    this._onDataChange(null, comment);
+    return this._api.addComment(movieId, comment)
+      .then((comments) => {
+        this._updateComments(Comment.parseComments(comments));
+      });
+  }
+
+  /**
+   * Удаляет комментарий
+   * @param {number} commentId
+   */
+  deleteComment(commentId) {
+    this._api.deleteComment(commentId)
+      .then(() => {
+        this._removeComment(commentId);
+      })
+      .catch(() => {
+        const deleteBtn = this._commentComponent.getElement().querySelector(`.film-details__comment-delete`);
+        shake(this._commentComponent);
+        deleteBtn.disabled = false;
+        deleteBtn.textContent = DELETE_BTN_STATE.READY;
+      });
   }
 
   /**
@@ -59,10 +94,12 @@ export default class CommentController {
   _deleteCommentBtnClickHandler(event) {
     event.preventDefault();
 
-    const commentId = event.target.dataset.target;
-    const comment = this._commentsModel.find(commentId);
+    const deleteBtn = this._commentComponent.getElement().querySelector(`.film-details__comment-delete`);
+    deleteBtn.disabled = true;
+    deleteBtn.textContent = DELETE_BTN_STATE.BUSY;
 
-    this._onDataChange(comment, null);
+    const commentId = event.target.dataset.target;
+    this.deleteComment(commentId);
   }
 
 }

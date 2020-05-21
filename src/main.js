@@ -10,9 +10,6 @@ import FilterController from "./controllers/filter";
 
 import {componentRender} from "./utils/render";
 
-const AUTHORIZATION = `Basic werkgjhwe352nkwfj=`;
-const BASE_URL = `https://11.ecmascript.pages.academy/cinemaddict`;
-
 /**
  * Вся шапка сайта
  * @type {Element}
@@ -35,7 +32,7 @@ const footerElement = document.querySelector(`.footer`);
  * API для работы с сервером
  * @type {API}
  */
-const api = new API(BASE_URL, AUTHORIZATION);
+const api = new API();
 
 /**
  * Модель данных для списка фильмов
@@ -73,24 +70,36 @@ const pageController = new PageController(mainElement, userProfile, moviesModel,
  */
 const footerStatisticsElement = footerElement.querySelector(`.footer__statistics`);
 
+componentRender(headerElement, userProfile);
+
 pageController.init();
 
-api.getMovies()
-  .then((movies) => {
-    moviesModel.setMovies(movies);
-    userProfile.refreshUser(movies);
+/**
+ * Функция для рендера полной страницы при успешной загрузке данных с сервера
+ * @param {Movie[]} movies
+ */
+const renderFullPage = (movies) => {
+  moviesModel.setMovies(movies);
+  userProfile.refreshUser(movies);
 
-    componentRender(headerElement, userProfile);
-    filterController.refresh();
-    pageController.render();
-    componentRender(footerStatisticsElement, new FooterStatistics(movies.length));
+  filterController.refresh();
+  pageController.render();
+  componentRender(footerStatisticsElement, new FooterStatistics(movies.length));
 
-    api.getComments(movies).then((comments) => {
-      commentsModel.setComments(comments);
-    });
-  })
-  .catch(() => {
-    componentRender(headerElement, userProfile);
-    pageController.render();
-    componentRender(footerStatisticsElement, new FooterStatistics(0));
+  api.getComments(movies).then((comments) => {
+    commentsModel.setComments(comments);
   });
+};
+
+/**
+ * Функция для рендера пустой страницы при ошибке загрузки
+ */
+const renderEmptyPage = () => {
+  pageController.render();
+  componentRender(footerStatisticsElement, new FooterStatistics(0));
+};
+
+api.getMovies()
+  .then(renderFullPage)
+  .catch(renderEmptyPage);
+

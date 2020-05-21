@@ -36,12 +36,11 @@ export default class Movies {
 
   /**
    * Обновляет данные фильма
-   * @param {number} movieId
    * @param {Movie} newData
    * @return {boolean}
    */
-  updateMovie(movieId, newData) {
-    const index = this._movies.findIndex((movie) => movie.id === movieId);
+  updateMovie(newData) {
+    const index = this._movies.findIndex((movie) => movie.id === newData.id);
 
     if (index === -1) {
       return false;

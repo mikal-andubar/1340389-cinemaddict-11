@@ -8,7 +8,7 @@ import MovieController from "./movie";
 import {remove, componentRender} from "../utils/render";
 import {increaseInt, getSortedMoviesBySortType} from "../utils/common";
 
-import {MOVIE_COUNT, MOVIE_LIST_KEY, SortType} from "../constants";
+import {MOVIE_COUNT, MovieListKey, SortType} from "../constants";
 import {MovieListConfig} from "../config";
 
 /**
@@ -54,11 +54,11 @@ export default class PageController {
     this._api = api;
 
     this._movieBoard = new MovieBoard();
-    this._mainMovieList = new MovieList(MovieListConfig[MOVIE_LIST_KEY.MAIN]);
-    this._loadingList = new MovieList(MovieListConfig[MOVIE_LIST_KEY.LOADING]);
-    this._emptyMovieList = new MovieList(MovieListConfig[MOVIE_LIST_KEY.EMPTY]);
-    this._topRatedList = new MovieList(MovieListConfig[MOVIE_LIST_KEY.TOP_RATED]);
-    this._mostCommentedList = new MovieList(MovieListConfig[MOVIE_LIST_KEY.MOST_COMMENTED]);
+    this._mainMovieList = new MovieList(MovieListConfig[MovieListKey.MAIN]);
+    this._loadingList = new MovieList(MovieListConfig[MovieListKey.LOADING]);
+    this._emptyMovieList = new MovieList(MovieListConfig[MovieListKey.EMPTY]);
+    this._topRatedList = new MovieList(MovieListConfig[MovieListKey.TOP_RATED]);
+    this._mostCommentedList = new MovieList(MovieListConfig[MovieListKey.MOST_COMMENTED]);
 
     this._showMoreBtn = new ShowMoreButton();
 
@@ -73,6 +73,9 @@ export default class PageController {
     this._onSortTypeChangeHandler = this._onSortTypeChangeHandler.bind(this);
     this._onFilterChange = this._onFilterChange.bind(this);
     this._onStatisticsView = this._onStatisticsView.bind(this);
+    this._updateExtraLists = this._updateExtraLists.bind(this);
+
+    this._updateMovie = this._updateMovie.bind(this);
 
     this._statisticsComponent = new Statistics(this._userProfile, this._moviesModel);
 
@@ -145,11 +148,11 @@ export default class PageController {
     const movies = this._moviesModel.getAllMovies();
 
     switch (movieListName) {
-      case MOVIE_LIST_KEY.MAIN:
+      case MovieListKey.MAIN:
         return this._renderMovieList(this._mainMovieList, this._moviesModel.getMovies().slice(0, count));
-      case MOVIE_LIST_KEY.TOP_RATED:
+      case MovieListKey.TOP_RATED:
         return this._renderMovieList(this._topRatedList, getTopRatedMovies(movies, count));
-      case MOVIE_LIST_KEY.MOST_COMMENTED:
+      case MovieListKey.MOST_COMMENTED:
         return this._renderMovieList(this._mostCommentedList, getMostCommentedMovies(movies, count));
       default:
         return [];
@@ -183,7 +186,9 @@ export default class PageController {
           movieList.getListConfig().name,
           this._commentsModel,
           this._onDataChange,
-          this._onViewChange
+          this._onViewChange,
+          this._updateExtraLists,
+          this._api
       );
 
       movieController.render(movie);
@@ -244,7 +249,7 @@ export default class PageController {
         this._mainMovieList,
         this._sort.getSortedMovies(this._moviesModel.getMovies(), 0, MOVIE_COUNT.ON_START)
     );
-    this._refreshMovieControllersInList(MOVIE_LIST_KEY.MAIN, renderedMovies);
+    this._refreshMovieControllersInList(MovieListKey.MAIN, renderedMovies);
 
     this._renderShowMoreBtn();
   }
@@ -284,20 +289,34 @@ export default class PageController {
    */
   _onDataChange(oldData, newData) {
     this._api.updateMovie(oldData.id, newData)
-      .then((movie) => {
-        const isSuccess = this._moviesModel.updateMovie(oldData.id, movie);
+      .then(this._updateMovie);
+  }
 
-        if (isSuccess) {
-          this._shownMoviesControllers.forEach((controller) => {
-            controller.changeData(oldData, movie);
-          });
-          this._filterController.refresh();
-          this._updateMovieList(this._topRatedList, MOVIE_COUNT.EXTRA);
-          this._updateMovieList(this._mostCommentedList, MOVIE_COUNT.EXTRA);
+  /**
+   * Обновление данных о фильме в модели и интерфейсе
+   * @param {Movie} movie
+   * @private
+   */
+  _updateMovie(movie) {
+    const isSuccess = this._moviesModel.updateMovie(movie);
 
-          this._userProfile.refreshUser();
-        }
+    if (isSuccess) {
+      this._shownMoviesControllers.forEach((controller) => {
+        controller.changeData(movie);
       });
+      this._filterController.refresh();
+
+      this._userProfile.refreshUser();
+    }
+  }
+
+  /**
+   * Обновление дополнительных списков фильмов
+   * @private
+   */
+  _updateExtraLists() {
+    this._updateMovieList(this._topRatedList, MOVIE_COUNT.EXTRA);
+    this._updateMovieList(this._mostCommentedList, MOVIE_COUNT.EXTRA);
   }
 
   /**
