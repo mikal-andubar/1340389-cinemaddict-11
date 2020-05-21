@@ -1,6 +1,6 @@
 import AbstractSmartComponent from "./abstract-smart-component";
 import {increaseInt} from "../utils/common";
-import {FilterConfig} from "../constants";
+import {FilterConfig} from "../config";
 
 const STATS_BTN_NAME = `stats`;
 

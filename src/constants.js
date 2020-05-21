@@ -10,25 +10,6 @@ export const RENDER_PLACE = {
 };
 
 /**
- * Названия месяцев
- * @type {string[]}
- */
-export const MONTH_NAMES = [
-  `January`,
-  `February`,
-  `March`,
-  `April`,
-  `May`,
-  `June`,
-  `July`,
-  `August`,
-  `September`,
-  `October`,
-  `November`,
-  `December`,
-];
-
-/**
  * Константы управляющие отображением
  * @type {{}}
  */
@@ -70,28 +51,6 @@ export const MOVIE_BUTTON = {
   FAVORITE: `favorite`,
 };
 
-/**
- * Конфигурация для кнопок на карточке фильма
- * @type {{}}
- */
-export const MovieCardButton = {
-  [MOVIE_BUTTON.WATCHLIST]: {
-    name: `add-to-watchlist`,
-    value: `Add to watchlist`,
-    property: `isInWatchlist`,
-  },
-  [MOVIE_BUTTON.WATCHED]: {
-    name: `mark-as-watched`,
-    value: `Mark as watched`,
-    property: `isWatched`,
-  },
-  [MOVIE_BUTTON.FAVORITE]: {
-    name: `favorite`,
-    value: `Mark as favorite`,
-    property: `isFavorite`,
-  },
-};
-
 export const EmojiNames = {
   SMILE: `smile`,
   ANGRY: `angry`,
@@ -126,28 +85,19 @@ export const DATE_FORMAT = {
 };
 
 /**
- * Названия фильтров
+ * Типы списка фильмов: основной, дополнительный, пустой
  * @type {{}}
  */
-export const FilterConfig = {
-  ALL: {
-    name: `all`,
-    label: `All movies`,
-    property: null,
-  },
-  WATCHLIST: {
-    name: `watchlist`,
-    label: `Watchlist`,
-    property: `isInWatchlist`,
-  },
-  HISTORY: {
-    name: `history`,
-    label: `History`,
-    property: `isWatched`,
-  },
-  FAVORITES: {
-    name: `favorites`,
-    label: `Favorites`,
-    property: `isFavorite`,
-  },
+export const MovieListType = {
+  EMPTY: `empty`,
+  MAIN: `main`,
+  EXTRA: `extra`,
+};
+
+export const MOVIE_LIST_KEY = {
+  MAIN: `main`,
+  TOP_RATED: `top_rated`,
+  MOST_COMMENTED: `most_commented`,
+  EMPTY: `empty`,
+  LOADING: `loading`,
 };

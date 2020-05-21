@@ -2,7 +2,8 @@ import AbstractComponent from "./abstract-component";
 
 import {clipText, formatDate, formatDuration} from "../utils/common";
 
-import {MOVIE_BUTTON, MovieCardButton} from "../constants";
+import {MOVIE_BUTTON} from "../constants";
+import {MovieCardButton} from "../config";
 
 /**
  * Отрисовывает кнопку для работы с фильмом

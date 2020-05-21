@@ -1,22 +1,13 @@
 import AbstractComponent from "./abstract-component";
 
-/**
- * Типы списка фильмов: основной, дополнительный, пустой
- * @type {{}}
- */
-export const MovieListType = {
-  EMPTY: `empty`,
-  MAIN: `main`,
-  EXTRA: `extra`,
-};
+import {MovieListType} from "../constants";
 
 /**
  * Создание списка фильмов
- * @param {string} title
- * @param {string} listType
+ * @param {{}} listConfig
  * @return {string}
  */
-const createMovieListTemplate = (title, listType = MovieListType.MAIN) => {
+const createMovieListTemplate = ({label: title, type: listType = MovieListType.MAIN}) => {
   return (
     `<section class="films-list${listType === MovieListType.EXTRA ? `--${listType}` : ``}">
       <h2 class="films-list__title ${listType === MovieListType.MAIN ? `visually-hidden` : ``}">${title}</h2>
@@ -31,14 +22,12 @@ const createMovieListTemplate = (title, listType = MovieListType.MAIN) => {
 export default class MovieList extends AbstractComponent {
   /**
    * Конструктор класса
-   * @param {string} title
-   * @param {string} listType
+   * @param {{}} listConfig
    */
-  constructor(title, listType = MovieListType.MAIN) {
+  constructor(listConfig) {
     super();
 
-    this._title = title;
-    this._listType = listType;
+    this._listConfig = listConfig;
   }
 
   /**
@@ -46,7 +35,7 @@ export default class MovieList extends AbstractComponent {
    * @return {string}
    */
   getTemplate() {
-    return createMovieListTemplate(this._title, this._listType);
+    return createMovieListTemplate(this._listConfig);
   }
 
   /**
@@ -58,11 +47,19 @@ export default class MovieList extends AbstractComponent {
   }
 
   /**
+   * Возвращает конфигурацию списка
+   * @return {{}}
+   */
+  getListConfig() {
+    return this._listConfig;
+  }
+
+  /**
    * Возвращает тип списка
    * @return {string}
    */
   getListType() {
-    return this._listType;
+    return this._listConfig.type;
   }
 
   /**

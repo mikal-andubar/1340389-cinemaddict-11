@@ -1,14 +1,15 @@
-import MovieList, {MovieListType} from "../components/movie-list";
+import MovieList from "../components/movie-list";
 import ShowMoreButton from "../components/show-more-button";
 import MovieBoard from "../components/movie-board";
 import Sort from "../components/sort";
+import Statistics from "../components/statistics";
 import MovieController from "./movie";
 
 import {remove, componentRender} from "../utils/render";
 import {increaseInt, getSortedMoviesBySortType} from "../utils/common";
 
-import {MOVIE_COUNT, SortType} from "../constants";
-import Statistics from "../components/statistics";
+import {MOVIE_COUNT, MOVIE_LIST_KEY, SortType} from "../constants";
+import {MovieListConfig} from "../config";
 
 /**
  * Поиск фильмов с наивысшими оценками
@@ -37,24 +38,27 @@ export default class PageController {
   /**
    * Конструктор принимает на вход контейнер, куда будет все отрисовывать
    * @param {Element} container
-   * @param {{}} userProfile
-   * @param {{}} moviesModel
-   * @param {{}} commentsModel
-   * @param {{}} filterController
+   * @param {UserProfile} userProfile
+   * @param {Movies} moviesModel
+   * @param {Comments} commentsModel
+   * @param {FilterController} filterController
+   * @param {API} api
    */
-  constructor(container, userProfile, moviesModel, commentsModel, filterController) {
+  constructor(container, userProfile, moviesModel, commentsModel, filterController, api) {
     this._container = container;
     this._userProfile = userProfile;
     this._moviesModel = moviesModel;
     this._commentsModel = commentsModel;
     this._filterController = filterController;
 
+    this._api = api;
+
     this._movieBoard = new MovieBoard();
-    this._statisticsComponent = new Statistics(this._userProfile, this._moviesModel);
-    this._mainMovieList = new MovieList(`All movies. Upcoming`);
-    this._emptyMovieList = new MovieList(`There are no movies in our database`, MovieListType.EMPTY);
-    this._topRatedList = new MovieList(`Top rated`, MovieListType.EXTRA);
-    this._mostCommentedList = new MovieList(`Most commented`, MovieListType.EXTRA);
+    this._mainMovieList = new MovieList(MovieListConfig[MOVIE_LIST_KEY.MAIN]);
+    this._loadingList = new MovieList(MovieListConfig[MOVIE_LIST_KEY.LOADING]);
+    this._emptyMovieList = new MovieList(MovieListConfig[MOVIE_LIST_KEY.EMPTY]);
+    this._topRatedList = new MovieList(MovieListConfig[MOVIE_LIST_KEY.TOP_RATED]);
+    this._mostCommentedList = new MovieList(MovieListConfig[MOVIE_LIST_KEY.MOST_COMMENTED]);
 
     this._showMoreBtn = new ShowMoreButton();
 
@@ -69,23 +73,38 @@ export default class PageController {
     this._onSortTypeChangeHandler = this._onSortTypeChangeHandler.bind(this);
     this._onFilterChange = this._onFilterChange.bind(this);
     this._onStatisticsView = this._onStatisticsView.bind(this);
-    this._moviesModel.setFilterChangeHandler(this._onFilterChange);
 
-    this._filterController.setStatisticsViewHandler(this._onStatisticsView);
+    this._statisticsComponent = new Statistics(this._userProfile, this._moviesModel);
+
   }
 
   /**
-   * Отрисовка страницы
+   * Первияная отрисовка страницы
    */
-  render() {
-    const movies = this._moviesModel.getMovies();
-
+  init() {
     componentRender(this._container, this._sort);
 
     // Рендер доски со списками фильмов
     componentRender(this._container, this._movieBoard);
 
-    // Рендер пустого списка фильмов
+    // Рендер лоадера
+    componentRender(this._movieBoard.getElement(), this._loadingList);
+
+    // Рендер экрана статистики
+    componentRender(this._container, this._statisticsComponent);
+    this._statisticsComponent.hide();
+  }
+
+  /**
+   * Полноценная отрисовка страницы
+   */
+  render() {
+    // Уберем заглушку с лоадером
+    remove(this._loadingList);
+
+    const movies = this._moviesModel.getMovies();
+
+    // Рендер пустого списка, если не удалось загрузить фильмы
     if (movies.length === 0) {
       componentRender(this._movieBoard.getElement(), this._emptyMovieList);
       return;
@@ -96,6 +115,7 @@ export default class PageController {
     const newMovies = this._renderMovieList(this._mainMovieList, movies.slice(0, MOVIE_COUNT.ON_START));
     this._pushRenderedMovies(newMovies);
 
+    // Рендер кнопки SHOW MORE
     this._renderShowMoreBtn();
 
     // Рендер самых высокооцененных фильмов
@@ -108,18 +128,44 @@ export default class PageController {
     const mostCommentedMovies = this._renderMovieList(this._mostCommentedList, getMostCommentedMovies(movies));
     this._pushRenderedMovies(mostCommentedMovies);
 
-    // Рендер экрана статистика
-    componentRender(this._container, this._statisticsComponent);
-    this._statisticsComponent.hide();
-
-    // Добавление обработчика события смены типа сортировки
+    // Установка обработчиков
+    this._moviesModel.setFilterChangeHandler(this._onFilterChange);
+    this._filterController.setStatisticsViewHandler(this._onStatisticsView);
     this._sort.setSortTypeChangeHandler(this._onSortTypeChangeHandler);
   }
 
-  _updateMovieList(movieList, count) {
+  /**
+   * Возвращает фильмы для указанного списка
+   * @param {string} movieListName
+   * @param {number} count
+   * @return {[]}
+   * @private
+   */
+  _getMoviesForList(movieListName, count) {
+    const movies = this._moviesModel.getAllMovies();
 
-    const newMovies = this._renderMovieList(movieList, this._moviesModel.getMovies().slice(0, count));
-    this._refreshMovieControllersInList(movieList.getListType(), newMovies);
+    switch (movieListName) {
+      case MOVIE_LIST_KEY.MAIN:
+        return this._renderMovieList(this._mainMovieList, this._moviesModel.getMovies().slice(0, count));
+      case MOVIE_LIST_KEY.TOP_RATED:
+        return this._renderMovieList(this._topRatedList, getTopRatedMovies(movies, count));
+      case MOVIE_LIST_KEY.MOST_COMMENTED:
+        return this._renderMovieList(this._mostCommentedList, getMostCommentedMovies(movies, count));
+      default:
+        return [];
+    }
+  }
+
+  /**
+   * Обновляет список фильмов
+   * @param {MovieList} movieList
+   * @param {number} count
+   * @private
+   */
+  _updateMovieList(movieList, count) {
+    const listName = movieList.getListConfig().name;
+    const newMovies = this._getMoviesForList(listName, count);
+    this._refreshMovieControllersInList(listName, newMovies);
 
     this._renderShowMoreBtn();
   }
@@ -134,7 +180,7 @@ export default class PageController {
     return movies.map((movie) => {
       const movieController = new MovieController(
           movieList.getListElement(),
-          movieList.getListType(),
+          movieList.getListConfig().name,
           this._commentsModel,
           this._onDataChange,
           this._onViewChange
@@ -181,13 +227,13 @@ export default class PageController {
 
   /**
    * Подсчитывает количество отображенных карточек в списке
-   * @param {{}} movieList
+   * @param {MovieList} movieList
    * @return {number}
    * @private
    */
   _countShownMovies(movieList) {
     return this._shownMoviesControllers.filter(
-        (controller) => controller.getListType() === movieList.getListType()
+        (controller) => controller.getMovieListName() === movieList.getListConfig().name
     ).length;
   }
 
@@ -198,7 +244,7 @@ export default class PageController {
         this._mainMovieList,
         this._sort.getSortedMovies(this._moviesModel.getMovies(), 0, MOVIE_COUNT.ON_START)
     );
-    this._refreshMovieControllersInList(MovieListType.MAIN, renderedMovies);
+    this._refreshMovieControllersInList(MOVIE_LIST_KEY.MAIN, renderedMovies);
 
     this._renderShowMoreBtn();
   }
@@ -214,43 +260,44 @@ export default class PageController {
 
   /**
    * Обновляет массив контроллеров для заданного типа списка фильмов
-   * @param {string} listType
+   * @param {string} listName
    * @param {MovieController[]} renderedMovies
    * @private
    */
-  _refreshMovieControllersInList(listType, renderedMovies) {
+  _refreshMovieControllersInList(listName, renderedMovies) {
     this._shownMoviesControllers.forEach((controller) => {
-      if (controller.getListType() === listType) {
+      if (controller.getMovieListName() === listName) {
         controller.destroy();
       }
     });
     this._shownMoviesControllers = this._shownMoviesControllers.filter(
-        (controller) => controller.getListType() !== listType
+        (controller) => controller.getMovieListName() !== listName
     );
     this._pushRenderedMovies(renderedMovies);
   }
 
   /**
    * Обработчик изменения данных задачи
-   * @param {{}} oldData
-   * @param {{}} newData
+   * @param {Movie} oldData
+   * @param {Movie} newData
    * @private
    */
   _onDataChange(oldData, newData) {
-    const movies = this._moviesModel.getAllMovies();
-    const index = movies.findIndex((it) => it === oldData);
+    this._api.updateMovie(oldData.id, newData)
+      .then((movie) => {
+        const isSuccess = this._moviesModel.updateMovie(oldData.id, movie);
 
-    if (index === -1) {
-      return;
-    }
+        if (isSuccess) {
+          this._shownMoviesControllers.forEach((controller) => {
+            controller.changeData(oldData, movie);
+          });
+          this._filterController.refresh();
+          this._updateMovieList(this._topRatedList, MOVIE_COUNT.EXTRA);
+          this._updateMovieList(this._mostCommentedList, MOVIE_COUNT.EXTRA);
 
-    this._moviesModel.setMovies([].concat(movies.slice(0, index), newData, movies.slice(index + 1)));
-
-    this._shownMoviesControllers.forEach((controller) => {
-      controller.changeData(oldData, newData);
-    });
-
-    this._filterController.refresh();
+          this._userProfile.refreshUser();
+        }
+      });
   }
 
   /**

@@ -1,4 +1,5 @@
-import {FilterConfig} from "../constants";
+import {FilterConfig} from "../config";
+
 import {getMoviesByFilter} from "../utils/filter";
 
 /**
@@ -19,7 +20,7 @@ export default class Movies {
 
   /**
    * Устанавливает массив фильмов
-   * @param {{}[]} movies
+   * @param {{}} movies
    */
   setMovies(movies) {
     this._movies = movies;
@@ -31,6 +32,23 @@ export default class Movies {
    */
   getMovies() {
     return getMoviesByFilter(this._movies, this._currentFilter);
+  }
+
+  /**
+   * Обновляет данные фильма
+   * @param {number} movieId
+   * @param {Movie} newData
+   * @return {boolean}
+   */
+  updateMovie(movieId, newData) {
+    const index = this._movies.findIndex((movie) => movie.id === movieId);
+
+    if (index === -1) {
+      return false;
+    }
+
+    this._movies = [].concat(this._movies.slice(0, index), newData, this._movies.slice(index + 1));
+    return true;
   }
 
   /**
@@ -56,17 +74,6 @@ export default class Movies {
    */
   setFilterChangeHandler(handler) {
     this._filterChangeHandlers.push(handler);
-  }
-
-  updateMovie(id, newData) {
-    const index = this._movies.findIndex((it) => it.id === id);
-
-    if (index === -1) {
-      return;
-    }
-
-    this._movies = [].concat(this._movies.slice(0, index), newData, this._movies.slice(index + 1));
-
   }
 
   /**
