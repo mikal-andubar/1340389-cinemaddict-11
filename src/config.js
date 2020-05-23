@@ -1,32 +1,32 @@
-import {MovieListType, MOVIE_LIST_KEY, MOVIE_BUTTON} from "./constants";
+import {MovieListType, MovieListKey, MOVIE_BUTTON} from "./constants";
 
 /**
  * Конфигурация для списков фильмов
  * @type {{}}
  */
 export const MovieListConfig = {
-  [MOVIE_LIST_KEY.MAIN]: {
-    name: MOVIE_LIST_KEY.MAIN,
+  [MovieListKey.MAIN]: {
+    name: MovieListKey.MAIN,
     label: `All movies. Upcoming`,
     type: MovieListType.MAIN,
   },
-  [MOVIE_LIST_KEY.MOST_COMMENTED]: {
-    name: MOVIE_LIST_KEY.MOST_COMMENTED,
+  [MovieListKey.MOST_COMMENTED]: {
+    name: MovieListKey.MOST_COMMENTED,
     label: `Most commented`,
     type: MovieListType.EXTRA,
   },
-  [MOVIE_LIST_KEY.TOP_RATED]: {
-    name: MOVIE_LIST_KEY.TOP_RATED,
+  [MovieListKey.TOP_RATED]: {
+    name: MovieListKey.TOP_RATED,
     label: `Top rated`,
     type: MovieListType.EXTRA,
   },
-  [MOVIE_LIST_KEY.EMPTY]: {
-    name: MOVIE_LIST_KEY.EMPTY,
+  [MovieListKey.EMPTY]: {
+    name: MovieListKey.EMPTY,
     label: `There are no movies in our database`,
     type: MovieListType.EMPTY,
   },
-  [MOVIE_LIST_KEY.LOADING]: {
-    name: MOVIE_LIST_KEY.LOADING,
+  [MovieListKey.LOADING]: {
+    name: MovieListKey.LOADING,
     label: `Loading...`,
     type: MovieListType.EMPTY,
   },

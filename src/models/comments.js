@@ -8,14 +8,39 @@ export default class Comments {
    */
   constructor() {
     this._comments = [];
+
+    this.addComment = this.addComment.bind(this);
   }
 
   /**
    * Устанавливает массив комментариев
-   * @param {{}[]} comments
+   * @param {Comment[]} comments
    */
   setComments(comments) {
-    this._comments = comments;
+    this._comments = [];
+    this.addComments(comments);
+  }
+
+  /**
+   * Добавляет комментарии к модели
+   * @param {Comment[]} comments
+   */
+  addComments(comments) {
+    comments.forEach(this.addComment);
+  }
+
+  /**
+   * Добавляет один комментарий к модели
+   * @param {Comment} comment
+   */
+  addComment(comment) {
+    const index = this._comments.findIndex((it) => it.id === comment.id);
+
+    if (index > 0) {
+      return;
+    }
+
+    this._comments.push(comment);
   }
 
   /**

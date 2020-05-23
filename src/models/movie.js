@@ -30,7 +30,7 @@ export default class Movie {
     this.isWatched = userInfo[`already_watched`];
     this.isInWatchlist = userInfo[`watchlist`];
     this.isFavorite = userInfo[`favorite`];
-    this.watchingDate = userInfo[`watching_date`];
+    this.watchingDate = new Date(userInfo[`watching_date`]);
   }
 
   /**
@@ -51,7 +51,7 @@ export default class Movie {
         "writers": this.writers,
         "actors": this.actors,
         "release": {
-          "date": this.releaseDate,
+          "date": this.releaseDate ? this.releaseDate.toISOString() : null,
           "release_country": this.country,
         },
         "runtime": this.duration,
@@ -61,7 +61,7 @@ export default class Movie {
       "user_details": {
         "watchlist": this.isInWatchlist,
         "already_watched": this.isWatched,
-        "watching_date": this.watchingDate,
+        "watching_date": this.watchingDate ? this.watchingDate.toISOString() : null,
         "favorite": this.isFavorite,
       }
     };
