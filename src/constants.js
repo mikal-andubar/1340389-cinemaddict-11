@@ -111,3 +111,12 @@ export const MovieListKey = {
  * @type {number}
  */
 export const SHAKE_TIME = 500;
+
+/**
+ * Имена локальных хранилищ
+ * @type {{}}
+ */
+export const StorageName = {
+  MOVIES: `movies`,
+  COMMENTS: `comments`,
+};

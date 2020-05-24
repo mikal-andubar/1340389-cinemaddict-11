@@ -1,3 +1,5 @@
+import {deleteFromArray} from "../utils/common";
+
 /**
  * Модель данных для комментариев
  */
@@ -74,7 +76,7 @@ export default class Comments {
    */
   remove(id) {
     const index = this._comments.findIndex((comment) => comment.id === id);
-    this.setComments([].concat(this._comments.slice(0, index), this._comments.slice(index + 1)));
+    this.setComments(deleteFromArray(this._comments, index));
   }
 
 }
