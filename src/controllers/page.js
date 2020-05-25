@@ -42,7 +42,7 @@ export default class PageController {
    * @param {Movies} moviesModel
    * @param {Comments} commentsModel
    * @param {FilterController} filterController
-   * @param {API} api
+   * @param {API|Provider} api
    */
   constructor(container, userProfile, moviesModel, commentsModel, filterController, api) {
     this._container = container;
@@ -109,7 +109,7 @@ export default class PageController {
 
     // Рендер пустого списка, если не удалось загрузить фильмы
     if (movies.length === 0) {
-      componentRender(this._movieBoard.getElement(), this._emptyMovieList);
+      this.renderEmpty();
       return;
     }
 
@@ -135,6 +135,11 @@ export default class PageController {
     this._moviesModel.setFilterChangeHandler(this._onFilterChange);
     this._filterController.setStatisticsViewHandler(this._onStatisticsView);
     this._sort.setSortTypeChangeHandler(this._onSortTypeChangeHandler);
+  }
+
+  // Рендер пустого списка в случае ошибки или если в базе нет фильмов
+  renderEmpty() {
+    componentRender(this._movieBoard.getElement(), this._emptyMovieList);
   }
 
   /**
@@ -283,12 +288,11 @@ export default class PageController {
 
   /**
    * Обработчик изменения данных задачи
-   * @param {Movie} oldData
    * @param {Movie} newData
    * @private
    */
-  _onDataChange(oldData, newData) {
-    this._api.updateMovie(oldData.id, newData)
+  _onDataChange(newData) {
+    this._api.updateMovie(newData)
       .then(this._updateMovie);
   }
 

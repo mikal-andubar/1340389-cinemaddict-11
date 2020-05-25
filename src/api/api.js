@@ -1,5 +1,5 @@
-import Movie from "./models/movie";
-import Comment from "./models/comment";
+import Movie from "../models/movie";
+import Comment from "../models/comment";
 
 /**
  * Методы запросов
@@ -42,13 +42,12 @@ const API = class {
 
   /**
    * Обновляет данные на сервере
-   * @param {number} movieId
    * @param {Movie} newData
    * @return {Promise<any>}
    */
-  updateMovie(movieId, newData) {
+  updateMovie(newData) {
     return this._request({
-      url: `movies/${movieId}`,
+      url: `movies/${newData.id}`,
       method: Method.PUT,
       body: JSON.stringify(newData.toServerStructure()),
       headers: new Headers({"Content-Type": `application/json`}),
@@ -107,6 +106,21 @@ const API = class {
       url: `comments/${commentId}`,
       method: Method.DELETE,
     });
+  }
+
+  /**
+   * Синхронизация данных с сервером
+   * @param {{}} data
+   * @return {Promise}
+   */
+  sync(data) {
+    return this._request({
+      url: `movies/sync`,
+      method: Method.POST,
+      body: JSON.stringify(data),
+      headers: new Headers({"Content-Type": `application/json`})
+    })
+      .then((response) => response.json());
   }
 
   /**

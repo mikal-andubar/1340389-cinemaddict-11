@@ -185,3 +185,11 @@ export const getSortedMoviesBySortType = (movies, sortType) => {
       return showingMovies;
   }
 };
+
+/**
+ * Удаляет элемент из массива по индексу и возвращает новый массив
+ * @param {[]} array
+ * @param {number} index
+ * @return {[]}
+ */
+export const deleteFromArray = (array, index) => [].concat(array.slice(0, index), array.slice(index + 1));

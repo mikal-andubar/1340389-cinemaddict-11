@@ -4,9 +4,11 @@ import CommentController from "./comment";
 import Movie from "../models/movie";
 
 import {componentRender, remove, replace} from "../utils/render";
+import {shake} from "../utils/effects";
+import {deleteFromArray} from "../utils/common";
+
 import {KEY_CODE, MOVIE_BUTTON, MovieCardModes} from "../constants";
 import {MovieCardButton} from "../config";
-import {shake} from "../utils/effects";
 
 /**
  * Класс контроллера для карточки с фильмом
@@ -245,7 +247,7 @@ export default class MovieController {
       newData.watchingDate = new Date();
     }
 
-    this._onDataChange(this._movie, newData);
+    this._onDataChange(newData);
   }
 
   /**
@@ -314,7 +316,7 @@ export default class MovieController {
     newData.comments = comments.map((comment) => comment.id);
     this._moviePopup.emptyNewComment();
 
-    this._onDataChange(this._movie, newData);
+    this._onDataChange(newData);
     this._refreshMoviePopup();
   }
 
@@ -324,12 +326,11 @@ export default class MovieController {
    * @private
    */
   _removeComment(commentId) {
-    const oldData = Movie.clone(this._movie);
     this._removeCommentFromMovie(commentId);
     this._commentsModel.remove(commentId);
     this._moviePopupInitialPos = this._moviePopup.getCurrentPos();
 
-    this._onDataChange(oldData, this._movie);
+    this._onDataChange(this._movie);
     this._refreshMoviePopup();
   }
 
@@ -360,7 +361,7 @@ export default class MovieController {
       return;
     }
 
-    movie.comments = [].concat(comments.slice(0, index), comments.slice(index + 1));// TODO: Написать функцию для удаления из массива по индексу
+    movie.comments = deleteFromArray(comments, index);
   }
 
 }

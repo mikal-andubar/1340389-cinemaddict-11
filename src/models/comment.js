@@ -13,7 +13,7 @@ export default class Comment {
     this.emoji = Object.entries(Emojis).find((emoji) => emoji[0] === data[`emotion`]);
     this.text = data[`comment`];
     this.author = data[`author`];
-    this.date = data[`date`];
+    this.date = new Date(data[`date`]);
   }
 
   /**
@@ -22,6 +22,8 @@ export default class Comment {
    */
   toServerStructure() {
     return {
+      "id": this.id,
+      "author": this.author,
       "comment": this.text,
       "date": this.date ? this.date.toISOString() : null,
       "emotion": this.emoji ? this.emoji[0] : null,

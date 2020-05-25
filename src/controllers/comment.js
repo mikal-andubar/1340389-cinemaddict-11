@@ -25,7 +25,7 @@ export default class CommentController {
    * @param {{}} commentsModel
    * @param {function} removeComment
    * @param {function} updateComments
-   * @param {API} api
+   * @param {API|Provider} api
    */
   constructor(container, commentsModel, removeComment, updateComments, api) {
     this._container = container;
