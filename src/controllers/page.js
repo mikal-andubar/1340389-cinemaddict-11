@@ -17,9 +17,14 @@ import {MovieListConfig} from "../config";
  * @param {number} count
  * @return {[]}
  */
-const getTopRatedMovies = (movies, count = MOVIE_COUNT.EXTRA) => (
-  getSortedMoviesBySortType(movies, SortType.RATING).slice(0, count)
-);
+const getTopRatedMovies = (movies, count = MOVIE_COUNT.EXTRA) => {
+  const sortedMovies = getSortedMoviesBySortType(movies, SortType.RATING);
+  const topRating = sortedMovies[0].rating;
+  if (topRating === 0) {
+    return [];
+  }
+  return sortedMovies.slice(0, count);
+};
 
 /**
  * Поиск фильмов с самым большим количеством комментариев
@@ -27,9 +32,14 @@ const getTopRatedMovies = (movies, count = MOVIE_COUNT.EXTRA) => (
  * @param {number} count
  * @return {[]}
  */
-const getMostCommentedMovies = (movies, count = MOVIE_COUNT.EXTRA) => (
-  getSortedMoviesBySortType(movies, SortType.COMMENTS).slice(0, count)
-);
+const getMostCommentedMovies = (movies, count = MOVIE_COUNT.EXTRA) => {
+  const sortedMovies = getSortedMoviesBySortType(movies, SortType.COMMENTS);
+  const maxComments = sortedMovies[0].comments.length;
+  if (maxComments === 0) {
+    return [];
+  }
+  return sortedMovies.slice(0, count);
+};
 
 /**
  * Контроллер, который управляет рендером элементов страницы
@@ -122,14 +132,20 @@ export default class PageController {
     this._renderShowMoreBtn();
 
     // Рендер самых высокооцененных фильмов
-    componentRender(this._movieBoard.getElement(), this._topRatedList);
-    const topRatedMovies = this._renderMovieList(this._topRatedList, getTopRatedMovies(movies));
-    this._pushRenderedMovies(topRatedMovies);
+    const topRatedMovies = getTopRatedMovies(movies);
+    if (topRatedMovies.length > 0) {
+      componentRender(this._movieBoard.getElement(), this._topRatedList);
+      const topRatedMovieControllers = this._renderMovieList(this._topRatedList, topRatedMovies);
+      this._pushRenderedMovies(topRatedMovieControllers);
+    }
 
     // Рендер самых обсуждаемых фильмов
-    componentRender(this._movieBoard.getElement(), this._mostCommentedList);
-    const mostCommentedMovies = this._renderMovieList(this._mostCommentedList, getMostCommentedMovies(movies));
-    this._pushRenderedMovies(mostCommentedMovies);
+    const mostCommentedMovies = getMostCommentedMovies(movies);
+    if (mostCommentedMovies.length > 0) {
+      componentRender(this._movieBoard.getElement(), this._mostCommentedList);
+      const mostCommentedMovieControllers = this._renderMovieList(this._mostCommentedList, getMostCommentedMovies(movies));
+      this._pushRenderedMovies(mostCommentedMovieControllers);
+    }
 
     // Установка обработчиков
     this._moviesModel.setFilterChangeHandler(this._onFilterChange);
