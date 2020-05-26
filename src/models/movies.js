@@ -28,7 +28,7 @@ export default class Movies {
 
   /**
    * Возвращает массив фильмов
-   * @return {{}[]}
+   * @return {Movie[]}
    */
   getMovies() {
     return getMoviesByFilter(this._movies, this._currentFilter);
@@ -52,7 +52,7 @@ export default class Movies {
 
   /**
    * Возвращает массив всех фильмов в базе
-   * @return {{}[]}
+   * @return {Movie[]}
    */
   getAllMovies() {
     return this._movies;

@@ -99,11 +99,11 @@ export const MovieListType = {
  * @type {{}}
  */
 export const MovieListKey = {
-  MAIN: `main`,
-  TOP_RATED: `top_rated`,
-  MOST_COMMENTED: `most_commented`,
-  EMPTY: `empty`,
-  LOADING: `loading`,
+  MAIN: `mainList`,
+  TOP_RATED: `topRatedList`,
+  MOST_COMMENTED: `mostCommentedList`,
+  EMPTY: `emptyList`,
+  LOADING: `loadingList`,
 };
 
 /**

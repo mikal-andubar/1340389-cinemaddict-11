@@ -51,11 +51,11 @@ export default class PageController {
     this._api = api;
 
     this._movieBoard = new MovieBoard();
-    this._mainMovieList = new MovieList(MovieListConfig[MovieListKey.MAIN]);
-    this._loadingList = new MovieList(MovieListConfig[MovieListKey.LOADING]);
-    this._emptyMovieList = new MovieList(MovieListConfig[MovieListKey.EMPTY]);
-    this._topRatedList = new MovieList(MovieListConfig[MovieListKey.TOP_RATED]);
-    this._mostCommentedList = new MovieList(MovieListConfig[MovieListKey.MOST_COMMENTED]);
+
+    this._movieLists = Object.values(MovieListConfig).reduce((acc, list) => {
+      acc[list.name] = new MovieList(list);
+      return acc;
+    }, {});
 
     this._showMoreBtn = new ShowMoreButton();
 
@@ -88,7 +88,7 @@ export default class PageController {
     componentRender(this._container, this._movieBoard);
 
     // Рендер лоадера
-    componentRender(this._movieBoard.getElement(), this._loadingList);
+    componentRender(this._movieBoard.getElement(), this._movieLists[MovieListKey.LOADING]);
 
     // Рендер экрана статистики
     componentRender(this._container, this._statisticsComponent);
@@ -100,7 +100,7 @@ export default class PageController {
    */
   render() {
     // Уберем заглушку с лоадером
-    remove(this._loadingList);
+    remove(this._movieLists[MovieListKey.LOADING]);
 
     const movies = this._moviesModel.getMovies();
 
@@ -111,26 +111,26 @@ export default class PageController {
     }
 
     // Рендер основного списка фильмов и карточек в него
-    componentRender(this._movieBoard.getElement(), this._mainMovieList);
-    const newMovies = this._renderMovieList(this._mainMovieList, movies.slice(0, MOVIE_COUNT.ON_START));
+    componentRender(this._movieBoard.getElement(), this._movieLists[MovieListKey.MAIN]);
+    const newMovies = this._renderMovieList(this._movieLists[MovieListKey.MAIN], movies.slice(0, MOVIE_COUNT.ON_START));
     this._pushRenderedMovies(newMovies);
 
     // Рендер кнопки SHOW MORE
     this._renderShowMoreBtn();
 
     // Рендер самых высокооцененных фильмов
-    const topRatedMovies = getTopMovies(movies, SortType.RATING); // getTopRatedMovies(movies);
+    const topRatedMovies = getTopMovies(movies, SortType.RATING);
     if (topRatedMovies.length > 0) {
-      componentRender(this._movieBoard.getElement(), this._topRatedList);
-      const topRatedMovieControllers = this._renderMovieList(this._topRatedList, topRatedMovies);
+      componentRender(this._movieBoard.getElement(), this._movieLists[MovieListKey.TOP_RATED]);
+      const topRatedMovieControllers = this._renderMovieList(this._movieLists[MovieListKey.TOP_RATED], topRatedMovies);
       this._pushRenderedMovies(topRatedMovieControllers);
     }
 
     // Рендер самых обсуждаемых фильмов
     const mostCommentedMovies = getTopMovies(movies, SortType.COMMENTS); // getMostCommentedMovies(movies);
     if (mostCommentedMovies.length > 0) {
-      componentRender(this._movieBoard.getElement(), this._mostCommentedList);
-      const mostCommentedMovieControllers = this._renderMovieList(this._mostCommentedList, mostCommentedMovies);
+      componentRender(this._movieBoard.getElement(), this._movieLists[MovieListKey.MOST_COMMENTED]);
+      const mostCommentedMovieControllers = this._renderMovieList(this._movieLists[MovieListKey.MOST_COMMENTED], mostCommentedMovies);
       this._pushRenderedMovies(mostCommentedMovieControllers);
     }
 
@@ -142,7 +142,7 @@ export default class PageController {
 
   // Рендер пустого списка в случае ошибки или если в базе нет фильмов
   renderEmpty() {
-    componentRender(this._movieBoard.getElement(), this._emptyMovieList);
+    componentRender(this._movieBoard.getElement(), this._movieLists[MovieListKey.EMPTY]);
   }
 
   /**
@@ -157,11 +157,11 @@ export default class PageController {
 
     switch (movieListName) {
       case MovieListKey.MAIN:
-        return this._renderMovieList(this._mainMovieList, this._moviesModel.getMovies().slice(0, count));
+        return this._renderMovieList(this._movieLists[MovieListKey.MAIN], this._moviesModel.getMovies().slice(0, count));
       case MovieListKey.TOP_RATED:
-        return this._renderMovieList(this._topRatedList, getTopMovies(movies, SortType.RATING, count));
+        return this._renderMovieList(this._movieLists[MovieListKey.TOP_RATED], getTopMovies(movies, SortType.RATING, count));
       case MovieListKey.MOST_COMMENTED:
-        return this._renderMovieList(this._mostCommentedList, getTopMovies(movies, SortType.COMMENTS, count));
+        return this._renderMovieList(this._movieLists[MovieListKey.MOST_COMMENTED], getTopMovies(movies, SortType.COMMENTS, count));
       default:
         return [];
     }
@@ -211,11 +211,11 @@ export default class PageController {
   _renderShowMoreBtn() {
     remove(this._showMoreBtn);
 
-    if (this._countShownMovies(this._mainMovieList) >= this._moviesModel.getMovies().length) {
+    if (this._countShownMovies(this._movieLists[MovieListKey.MAIN]) >= this._moviesModel.getMovies().length) {
       return;
     }
 
-    componentRender(this._mainMovieList.getElement(), this._showMoreBtn);
+    componentRender(this._movieLists[MovieListKey.MAIN].getElement(), this._showMoreBtn);
 
     this._showMoreBtn.setOnClickHandler(this._onShowMoreBtnClick);
   }
@@ -224,11 +224,11 @@ export default class PageController {
    * Обработчик события клика по кнопке "Show More"
    */
   _onShowMoreBtnClick() {
-    const previouslyShown = this._countShownMovies(this._mainMovieList);
+    const previouslyShown = this._countShownMovies(this._movieLists[MovieListKey.MAIN]);
     const newAmount = increaseInt(previouslyShown, MOVIE_COUNT.ON_BTN);
 
     const renderedMovies = this._renderMovieList(
-        this._mainMovieList,
+        this._movieLists[MovieListKey.MAIN],
         this._sort.getSortedMovies(this._moviesModel.getMovies(), previouslyShown, newAmount)
     );
     this._pushRenderedMovies(renderedMovies);
@@ -251,10 +251,10 @@ export default class PageController {
   }
 
   _onSortTypeChangeHandler() {
-    this._mainMovieList.clearList();
+    this._movieLists[MovieListKey.MAIN].clearList();
 
     const renderedMovies = this._renderMovieList(
-        this._mainMovieList,
+        this._movieLists[MovieListKey.MAIN],
         this._sort.getSortedMovies(this._moviesModel.getMovies(), 0, MOVIE_COUNT.ON_START)
     );
     this._refreshMovieControllersInList(MovieListKey.MAIN, renderedMovies);
@@ -322,8 +322,8 @@ export default class PageController {
    * @private
    */
   _updateExtraLists() {
-    this._updateMovieList(this._topRatedList, MOVIE_COUNT.EXTRA);
-    this._updateMovieList(this._mostCommentedList, MOVIE_COUNT.EXTRA);
+    this._updateMovieList(this._movieLists[MovieListKey.TOP_RATED], MOVIE_COUNT.EXTRA);
+    this._updateMovieList(this._movieLists[MovieListKey.MOST_COMMENTED], MOVIE_COUNT.EXTRA);
   }
 
   /**
@@ -342,7 +342,7 @@ export default class PageController {
    */
   _onFilterChange() {
     this._sort.setCurrentSortType(SortType.DEFAULT);
-    this._updateMovieList(this._mainMovieList, MOVIE_COUNT.ON_START);
+    this._updateMovieList(this._movieLists[MovieListKey.MAIN], MOVIE_COUNT.ON_START);
     this._statisticsComponent.hide();
     this._movieBoard.show();
   }
