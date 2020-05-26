@@ -1,12 +1,12 @@
-const CACHE_PREFIX = `cinemaddict-cache`;
-const CACHE_VER = `v1`;
-const CACHE_NAME = `${CACHE_PREFIX}-${CACHE_VER}`;
+const PREFIX = `cinemaddict-cache`;
+const VERSION = `v1`;
+const CACHE_NAME = `${PREFIX}-${VERSION}`;
 
+// Устанавливаем ServiceWorker
 self.addEventListener(`install`, (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then((cache) => {
-        console.log(`installing`);
         return cache.addAll([
           `./`,
           `./index.html`,
@@ -33,26 +33,50 @@ self.addEventListener(`install`, (event) => {
   );
 });
 
+/**
+ * Чистка кэша прошлых версий
+ * @param {[]} keys
+ * @return {Promise[]}
+ */
+const clearOldCache = (keys) => Promise.all(
+  keys.map(
+    (key) => {
+      if (key.startsWith(PREFIX) && key !== CACHE_NAME) {
+        return caches.delete(key);
+      }
+
+      return null;
+    })
+    .filter((key) => key !== null)
+);
+
+// Активируем ServiceWorker
 self.addEventListener(`activate`, (event) => {
-  console.log(`activation`);
   event.waitUntil(
     caches.keys()
-      .then(
-        (keys) => Promise.all(
-          keys.map(
-            (key) => {
-              if (key.startsWith(CACHE_PREFIX) && key !== CACHE_NAME) {
-                return caches.delete(key);
-              }
-
-              return null;
-            })
-            .filter((key) => key !== null)
-        )
-      )
+      .then(clearOldCache)
   );
 });
 
+/**
+ * Сохраняем ответ в кэш
+ * @param response
+ * @return {*}
+ */
+const putToCache = (response) => {
+  if (!response || response.status !== 200 || response.type !== `basic`) {
+    return response;
+  }
+
+  const clonedResponse = response.clone();
+
+  caches.open(CACHE_NAME)
+    .then((cache) => cache.put(request, clonedResponse));
+
+  return response;
+}
+
+// Перехватываем fetch
 self.addEventListener(`fetch`, (event) => {
   const {request} = event;
   event.respondWith(
@@ -63,18 +87,7 @@ self.addEventListener(`fetch`, (event) => {
         }
 
         return fetch(request)
-          .then((response) => {
-            if (!response || response.status !== 200 || response.type !== `basic`) {
-              return response;
-            }
-
-            const clonedResponse = response.clone();
-
-            caches.open(CACHE_NAME)
-              .then((cache) => cache.put(request, clonedResponse));
-
-            return response;
-          });
+          .then(putToCache);
       })
   );
 });
