@@ -134,8 +134,8 @@ const API = class {
 
     return fetch(`${this._baseUrl}/${url}`, {method, body, headers})
       .then(this._checkStatus)
-      .catch((error) => {
-        throw error;
+      .catch(() => {
+        throw new Error(`Ошибка при обращении к серверу!`);
       });
   }
 

@@ -137,8 +137,8 @@ window.addEventListener(`online`, () => {
 
   if (apiWithProvider.isNeedToSync()) {
     apiWithProvider.sync()
-      .catch((error) => {
-        throw new Error(error);
+      .catch(() => {
+        throw new Error(`Ошибка при синхронизации с сервером!`);
       });
   }
 });
@@ -146,9 +146,7 @@ window.addEventListener(`online`, () => {
 // Регистрируем ServiceWorker
 window.addEventListener(`load`, () => {
   navigator.serviceWorker.register(`./sw.js`)
-    .then(() => {
-      // Действие, в случае успешной регистрации ServiceWorker
-    }).catch(() => {
-    // Действие, в случае ошибки при регистрации ServiceWorker
+    .catch(() => {
+      throw new Error(`Не удалось зарегистрировать ServiceWorker!`);
     });
 });
