@@ -8,11 +8,11 @@ import {StorageName} from "../constants";
  * @return {{}}
  */
 const createStoringStructure = (items) => (
-  items.reduce((acc, item) => {
-    return Object.assign({}, acc, {
+  items.reduce((acc, item) => (
+    Object.assign({}, acc, {
       [item.id]: item.toServerStructure()
-    });
-  }, {})
+    })
+  ), {})
 );
 
 /**

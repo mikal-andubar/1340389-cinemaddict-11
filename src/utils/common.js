@@ -167,9 +167,9 @@ export const formatDate = (releaseDate, format = DATE_FORMAT.CARD) => {
 
 /**
  * Вспомогательная функция сортировки массива фильмов
- * @param {{}[]}movies
+ * @param {Movie[]}movies
  * @param {string} sortType
- * @return {{}[]}
+ * @return {Movie[]}
  */
 export const getSortedMoviesBySortType = (movies, sortType) => {
   const showingMovies = movies.slice();
