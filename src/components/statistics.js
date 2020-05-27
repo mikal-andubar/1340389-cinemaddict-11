@@ -22,22 +22,32 @@ const Period = {
   ALL_TIME: {
     name: `all-time`,
     label: `All time`,
+    amount: 100,
+    units: `year`,
   },
   TODAY: {
     name: `today`,
     label: `Today`,
+    amount: 1,
+    units: `day`,
   },
   WEEK: {
     name: `week`,
     label: `Week`,
+    amount: 1,
+    units: `week`,
   },
   MONTH: {
     name: `month`,
     label: `Month`,
+    amount: 1,
+    units: `month`,
   },
   YEAR: {
     name: `year`,
     label: `Year`,
+    amount: 1,
+    units: `year`,
   }
 };
 
@@ -104,25 +114,9 @@ export default class Statistics extends AbstractSmartComponent {
    * @private
    */
   _getWatchedMoviesForPeriod() {
+    const {amount, units} = this._currentPeriod;
     const watchedMovies = getMoviesByFilter(this._movieModel.getAllMovies(), FilterConfig.HISTORY);
-    let startDate = moment();
-    switch (this._currentPeriod) {
-      case Period.TODAY:
-        startDate = startDate.startOf(`day`);
-        break;
-      case Period.WEEK:
-        startDate = startDate.subtract(1, `week`);
-        break;
-      case Period.MONTH:
-        startDate = startDate.subtract(1, `month`);
-        break;
-      case Period.YEAR:
-        startDate = startDate.subtract(1, `year`);
-        break;
-      default:
-        startDate = moment(new Date(1930, 0, 1));
-        break;
-    }
+    const startDate = moment().subtract(amount, units);
     return watchedMovies.filter((movie) => {
       const watchingDate = moment(movie.watchingDate);
       return watchingDate.isAfter(startDate);
@@ -137,7 +131,8 @@ export default class Statistics extends AbstractSmartComponent {
    */
   _getTopGenre(movies) {
     const genreStatistics = getGenresStatistics(movies);
-    return genreStatistics[0] ? genreStatistics[0][0] : ``;
+    const topGenre = genreStatistics.slice(0, 1).pop();
+    return topGenre ? topGenre.slice(0, 1).pop() : ``;
   }
 
   /**
@@ -209,8 +204,8 @@ export default class Statistics extends AbstractSmartComponent {
    */
   _renderChart() {
     const genres = getGenresStatistics(this._getWatchedMoviesForPeriod());
-    const labels = genres.map((genre) => genre[0]);
-    const data = genres.map((genre) => genre[1]);
+    const labels = genres.map((genre) => genre.slice(0, 1).pop());
+    const data = genres.map((genre) => genre.slice(1).pop());
 
     const statisticCtx = this.getElement().querySelector(`.statistic__chart`);
 

@@ -20,7 +20,7 @@ import {MovieListConfig} from "../config";
  */
 const getTopMovies = (movies, property = SortType.RATING, count = MOVIE_COUNT.EXTRA) => {
   const sortedMovies = getSortedMoviesBySortType(movies, property);
-  const example = sortedMovies[0][property];
+  const example = sortedMovies.slice(0, 1).pop()[property];
   const top = example.length ? example.length : example;
   if (top === 0) {
     return [];

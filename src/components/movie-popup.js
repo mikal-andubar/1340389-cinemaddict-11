@@ -6,10 +6,26 @@ import {formatDate, formatDuration} from "../utils/common";
 import {DATE_FORMAT, EmojiNames, Emojis, MOVIE_BUTTON} from "../constants";
 import {MovieCardButton} from "../config";
 
-const emptyComment = {
+const EMPTY_COMMENT = {
   emotion: ``,
   comment: ``,
   date: null,
+};
+
+/**
+ * Возвращает заголовок поля жанра, в зависимости от количества указанных жанров
+ * @param {[]} genres
+ * @return {string}
+ */
+const getGenreFieldTitle = ({length}) => {
+  switch (true) {
+    case length === 1:
+      return `Genre`;
+    case length > 1:
+      return `Genres`;
+    default:
+      return ``;
+  }
 };
 
 /**
@@ -79,7 +95,7 @@ const createEmojiMarkup = ([emotion, image], isActive = false) => (
  */
 const createEmojiListTemplate = (currentEmoji) => {
   const emojisMarkup = Object.entries(Emojis).map((emoji) => {
-    const isActive = currentEmoji && emoji[0] === currentEmoji[0];
+    const isActive = currentEmoji && emoji.slice(0, 1).pop() === currentEmoji.slice(0, 1).pop();
     return createEmojiMarkup(emoji, isActive);
   }).join(`\n`);
   return `<div class="film-details__emoji-list">${emojisMarkup}</div>`;
@@ -104,14 +120,14 @@ export default class MoviePopup extends AbstractSmartComponent {
     this._emojiClickHandler = null;
     this._textEntryHandler = null;
     this._formSubmitHandler = null;
-    this._moviePopupBtnsHandler = null;
+    this._moviePopupButtonsHandler = null;
   }
 
   /**
    * Делает пустым текущий комментарий
    */
   emptyNewComment() {
-    this._newComment = Comment.parseComment(emptyComment);
+    this._newComment = Comment.parseComment(EMPTY_COMMENT);
   }
 
   /**
@@ -209,13 +225,13 @@ export default class MoviePopup extends AbstractSmartComponent {
    * Устанавливает обработчик для кнопок попапа
    * @param {function} handler
    */
-  setPopupBtnsHandler(handler) {
+  setPopupButtonsHandler(handler) {
     Object.values(MOVIE_BUTTON).forEach((btnName) => {
       this.getElement().querySelector(`input[name=${btnName}]`)
         .addEventListener(`change`, handler);
     });
 
-    this._moviePopupBtnsHandler = handler;
+    this._moviePopupButtonsHandler = handler;
   }
 
   /**
@@ -268,7 +284,7 @@ export default class MoviePopup extends AbstractSmartComponent {
    */
   _subscribeOnEvents() {
     // Подпишем основные кнопки на события
-    this.setPopupBtnsHandler(this._moviePopupBtnsHandler);
+    this.setPopupButtonsHandler(this._moviePopupButtonsHandler);
 
     // Подпишем кнопку закрытия попапа на события клика
     this.setOnPopupCloseClickHandler(this._closeBtnHandler);
@@ -311,15 +327,17 @@ export default class MoviePopup extends AbstractSmartComponent {
     const displayDate = formatDate(releaseDate, DATE_FORMAT.POPUP);
     const writersList = getPersonsList(writers);
     const actorsList = getPersonsList(actors);
+    const displayRating = rating.toFixed(1);
 
     const watchlistButton = createPopupButtonMarkup(MOVIE_BUTTON.WATCHLIST, isInWatchlist);
     const watchedButton = createPopupButtonMarkup(MOVIE_BUTTON.WATCHED, isWatched);
     const favoriteButton = createPopupButtonMarkup(MOVIE_BUTTON.FAVORITE, isFavorite);
 
     const commentsCount = movie.comments.length;
+    const genreFieldTitle = getGenreFieldTitle(genres);
 
     const currentEmojiMarkup = this._newComment.emoji ?
-      `<img src="${this._newComment.emoji[1]}" width="55" height="55" alt="emoji-smile">` : ``;
+      `<img src="${this._newComment.emoji.slice(1).pop()}" width="55" height="55" alt="emoji-smile">` : ``;
 
     return (
       `<section class="film-details">
@@ -343,7 +361,7 @@ export default class MoviePopup extends AbstractSmartComponent {
                   </div>
 
                   <div class="film-details__rating">
-                    <p class="film-details__total-rating">${rating}</p>
+                    <p class="film-details__total-rating">${displayRating}</p>
                   </div>
                 </div>
 
@@ -373,7 +391,7 @@ export default class MoviePopup extends AbstractSmartComponent {
                     <td class="film-details__cell">${country}</td>
                   </tr>
                   <tr class="film-details__row">
-                    <td class="film-details__term">Genres</td>
+                    <td class="film-details__term">${genreFieldTitle}</td>
                     <td class="film-details__cell">
                       ${createGenresListMarkup(genres)}
                     </td>

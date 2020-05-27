@@ -21,10 +21,36 @@ export const MOVIE_COUNT = {
 };
 
 /**
+ * Названия для кнопок на карточке фильма
+ * @type {{}}
+ */
+export const MOVIE_BUTTON = {
+  WATCHLIST: `watchlist`,
+  WATCHED: `watched`,
+  FAVORITE: `favorite`,
+};
+
+/**
+ * Используемые форматы даты
+ * @type {{}}
+ */
+export const DATE_FORMAT = {
+  CARD: `YYYY`,
+  POPUP: `DD MMMM YYYY`,
+  COMMENT: `fromnow`
+};
+
+/**
+ * Время эффекта "покачивания головой" в миллисекундах
+ * @type {number}
+ */
+export const SHAKE_TIME = 500;
+
+/**
  * Коды клавиш клавиатуры для обработчиков событий
  * @type {{}}
  */
-export const KEY_CODE = {
+export const KeyCode = {
   ESCAPE: `Escape`,
   ESC: `Esc`,
   ENTER: `Enter`,
@@ -39,16 +65,6 @@ export const SortType = {
   DATE: `date`,
   RATING: `rating`,
   COMMENTS: `comments`
-};
-
-/**
- * Названия для кнопок на карточке фильма
- * @type {{}}
- */
-export const MOVIE_BUTTON = {
-  WATCHLIST: `watchlist`,
-  WATCHED: `watched`,
-  FAVORITE: `favorite`,
 };
 
 export const EmojiNames = {
@@ -78,12 +94,6 @@ export const MovieCardModes = {
   POPUP: `popup`,
 };
 
-export const DATE_FORMAT = {
-  CARD: `YYYY`,
-  POPUP: `DD MMMM YYYY`,
-  COMMENT: `fromnow`
-};
-
 /**
  * Типы списка фильмов: основной, дополнительный, пустой
  * @type {{}}
@@ -105,12 +115,6 @@ export const MovieListKey = {
   EMPTY: `emptyList`,
   LOADING: `loadingList`,
 };
-
-/**
- * Время эффекта "покачивания головой"
- * @type {number}
- */
-export const SHAKE_TIME = 500;
 
 /**
  * Имена локальных хранилищ

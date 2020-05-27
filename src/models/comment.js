@@ -10,7 +10,7 @@ export default class Comment {
    */
   constructor(data) {
     this.id = data[`id`];
-    this.emoji = Object.entries(Emojis).find((emoji) => emoji[0] === data[`emotion`]);
+    this.emoji = Object.entries(Emojis).find((emoji) => emoji.slice(0, 1).pop() === data[`emotion`]);
     this.text = data[`comment`];
     this.author = data[`author`];
     this.date = new Date(data[`date`]);
@@ -26,7 +26,7 @@ export default class Comment {
       "author": this.author,
       "comment": this.text,
       "date": this.date ? this.date.toISOString() : null,
-      "emotion": this.emoji ? this.emoji[0] : null,
+      "emotion": this.emoji ? this.emoji.slice(0, 1).pop() : null,
     };
   }
 
@@ -46,15 +46,6 @@ export default class Comment {
    */
   static parseComments(data) {
     return data.map(Comment.parseComment);
-  }
-
-  /**
-   * Клонирует данные комментария
-   * @param {Comment} data
-   * @return {Comment}
-   */
-  static clone(data) {
-    return new Comment(data.toServerStructure());
   }
 
 }
