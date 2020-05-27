@@ -140,15 +140,13 @@ export default class Provider {
       const storedMovies = Object.values(this._store.getItems(StorageName.MOVIES));
 
       return this._api.sync(storedMovies)
-        .then((response) => {
-          const updatedMovies = response.updated;
-
+        .then(({updated: updatedMovies = {}}) => {
           const storingMovies = createStoringStructure(updatedMovies);
           this._store.setItems(StorageName.MOVIES, storingMovies);
         });
     }
 
-    return Promise.reject(new Error(`Синхронизация не удалась!`));
+    return Promise.reject(`Синхронизация не удалась!`);
   }
 
   /**

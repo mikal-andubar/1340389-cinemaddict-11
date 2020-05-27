@@ -3,12 +3,6 @@ import moment from "moment";
 import {DATE_FORMAT, SortType} from "../constants";
 
 /**
- * Источник предложений для случайного текста
- * @type {string}
- */
-const textSource = `Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras aliquet varius magna, non porta ligula feugiat eget. Fusce tristique felis at fermentum pharetra. Aliquam id orci ut lectus varius viverra. Nullam nunc ex, convallis sed finibus eget, sollicitudin eget ante. Phasellus eros mauris, condimentum sed nibh vitae, sodales efficitur ipsum. Sed blandit, eros vel aliquam faucibus, purus ex euismod diam, eu luctus nunc ante ut dui. Sed sed nisi sed augue convallis suscipit in sed felis. Aliquam erat volutpat. Nunc fermentum tortor ac porta dapibus. In rutrum ac purus sit amet tempus.`;
-
-/**
  * Массив имен для генерации человека
  * @type {string[]}
  */
@@ -37,65 +31,11 @@ export const increaseInt = (numeric, addingValue = 1) => numeric + addingValue;
 export const getRandomInt = (min, max) => min + Math.floor(Math.random() * (max - min));
 
 /**
- * Возвращает псевдослучайное целое число из интервала min-max
- * @param {number} min
- * @param {number} max
- * @param {number} precision
- * @return {string}
- */
-export const getRandomDecimal = (min, max, precision = 1) => (min + Math.random() * (max - min)).toFixed(precision);
-
-/**
- * Возвращает случайное значение boolean
- * @param {number} probability
- * @return {boolean}
- */
-export const getRandomBool = (probability = 0.5) => Math.random() <= probability;
-
-/**
  * Возвращает случайный элемент массива
  * @param {[]} array
  * @return {*}
  */
 export const getRandomArrayItem = (array) => array[getRandomInt(0, array.length)];
-
-/**
- * Возвращает случайную дату
- * @param {number} minYear
- * @param {number} maxYear
- * @param {boolean} withTime
- * @return {Date}
- */
-export const generateRandomDate = (minYear, maxYear, withTime = false) => {
-  const date = new Date();
-  const year = getRandomInt(minYear, maxYear + 1);
-  const month = getRandomInt(0, 12);
-  const day = getRandomInt(1, 29);
-  date.setFullYear(year, month, day);
-  if (withTime) {
-    date.setHours(getRandomInt(0, 24), getRandomInt(0, 60));
-  }
-  return date;
-};
-
-/**
- * Возвращает случайный текст с количеством предложений между заданного
- * @param {number} minSentencesQty
- * @param {number} maxSentencesQty
- * @return {string}
- */
-export const generateRandomText = (minSentencesQty, maxSentencesQty) => {
-  const sentencesQty = getRandomInt(minSentencesQty, maxSentencesQty + 1);
-  const sentences = textSource.split(`.`).map((it) => it.trim());
-  sentences.pop();
-
-  let text = ``;
-  for (let i = 0; i < sentencesQty; i++) {
-    text = `${text} ${getRandomArrayItem(sentences)}. `;
-  }
-
-  return text.trim();
-};
 
 /**
  * Обрезка строки до заданного лимита
@@ -104,7 +44,6 @@ export const generateRandomText = (minSentencesQty, maxSentencesQty) => {
  * @return {string}
  */
 export const clipText = (text, limit) => text.length > limit ? `${text.slice(0, limit)}...` : text;
-
 
 /**
  * Генератор человека
@@ -193,3 +132,11 @@ export const getSortedMoviesBySortType = (movies, sortType) => {
  * @return {[]}
  */
 export const deleteFromArray = (array, index) => [].concat(array.slice(0, index), array.slice(index + 1));
+
+/**
+ * Ищет объект в массиве, который либо совпадает с переданным id, либо имеет свойство id, равное ему
+ * @param {[]} array
+ * @param {number} id
+ * @return {number|*}
+ */
+export const findObjectIndexInArrayById = (array, id) => array.findIndex((it) => (it.id ? it.id : it) === id);

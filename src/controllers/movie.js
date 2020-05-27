@@ -5,9 +5,9 @@ import Movie from "../models/movie";
 
 import {componentRender, remove, replace} from "../utils/render";
 import {shake} from "../utils/effects";
-import {deleteFromArray} from "../utils/common";
+import {deleteFromArray, findObjectIndexInArrayById} from "../utils/common";
 
-import {KEY_CODE, MOVIE_BUTTON, MovieCardModes} from "../constants";
+import {KeyCode, MOVIE_BUTTON, MovieCardModes} from "../constants";
 import {MovieCardButton} from "../config";
 
 /**
@@ -152,7 +152,7 @@ export default class MovieController {
   _createMovieCard() {
     this._movieCard = new MovieCard(this._movie);
     this._movieCard.setOnPopupOpenClickHandler(this._showMoviePopup);
-    this._movieCard.setMovieCardBtnsHandler(this._onMovieCardBtnClick);
+    this._movieCard.setMovieCardButtonsHandler(this._onMovieCardBtnClick);
   }
 
   /**
@@ -163,7 +163,7 @@ export default class MovieController {
     this._moviePopup = new MoviePopup(this._movie);
 
     this._moviePopup.setOnPopupCloseClickHandler(this._hideMoviePopup);
-    this._moviePopup.setPopupBtnsHandler(this._onMovieCardBtnClick);
+    this._moviePopup.setPopupButtonsHandler(this._onMovieCardBtnClick);
     this._moviePopup.setEmojiClickHandler(this._emojiClickHandler);
     this._moviePopup.setTextEntryHandler(this._commentTextEntryHandler);
     this._moviePopup.setFormSubmitHandler(this._submitCommentFormHandler);
@@ -219,7 +219,7 @@ export default class MovieController {
    * @param {KeyboardEvent} event
    */
   _onEscBtnDown(event) {
-    const isEscBtn = event.key === KEY_CODE.ESCAPE || event.key === KEY_CODE.ESC;
+    const isEscBtn = event.key === KeyCode.ESCAPE || event.key === KeyCode.ESC;
 
     if (isEscBtn) {
       this._hideMoviePopup();
@@ -279,7 +279,7 @@ export default class MovieController {
    * @private
    */
   _submitCommentFormHandler(event) {
-    if (event.ctrlKey && event.key === KEY_CODE.ENTER) {
+    if (event.ctrlKey && event.key === KeyCode.ENTER) {
       if (!this._moviePopup.getCurrentEmoji()) {
         return;
       }
@@ -356,7 +356,7 @@ export default class MovieController {
 
     const movie = this._movie;
     const comments = movie.comments;
-    const index = comments.findIndex((it) => it === commentId);
+    const index = findObjectIndexInArrayById(comments, commentId);
     if (index === -1) {
       return;
     }

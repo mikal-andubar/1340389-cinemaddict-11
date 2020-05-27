@@ -2,18 +2,22 @@ import AbstractSmartComponent from "./abstract-smart-component";
 import {increaseInt} from "../utils/common";
 import {FilterConfig} from "../config";
 
-const STATS_BTN_NAME = `stats`;
-
-const FILTER_BTN_CLASS = `main-navigation__item`;
-const STATS_BTN_CLASS = `main-navigation__additional`;
-
-const ACTIVE_FILTER_CLASS = `main-navigation__item--active`;
+/**
+ * Аттрибуты элементов фильтра
+ * @type {{}}
+ */
+const FILTER_ATTR = {
+  STATS_BTN_NAME: `stats`,
+  FILTER_BTN_CLASS: `main-navigation__item`,
+  STATS_BTN_CLASS: `main-navigation__additional`,
+  ACTIVE_FILTER_CLASS: `main-navigation__item--active`,
+};
 
 /**
  * Пустой фильтр
  * @type {({name: string, count: number, label: string}|{name: string, count: number, label: string}|{name: string, count: number, label: string}|{name: string, count: number, label: string})[]}
  */
-const emptyFilters = [
+const EMPTY_FILTERS = [
   {name: FilterConfig.ALL.name, label: FilterConfig.ALL.label, count: 0},
   {name: FilterConfig.WATCHLIST.name, label: FilterConfig.WATCHLIST.label, count: 0},
   {name: FilterConfig.HISTORY.name, label: FilterConfig.HISTORY.label, count: 0},
@@ -51,7 +55,7 @@ export const generateFilters = (movies) => {
         count: movie.isFavorite ? increaseInt(favorites) : favorites,
       },
     ];
-  }, emptyFilters);
+  }, EMPTY_FILTERS);
 };
 
 /**
@@ -61,9 +65,9 @@ export const generateFilters = (movies) => {
  * @return {string}
  */
 const createFilterMarkup = ({name, label, count}, index) => (
-  `<a href="#${name}" class="${FILTER_BTN_CLASS} ${index === 0 ? ACTIVE_FILTER_CLASS : ``}">
+  `<a href="#${name}" class="${FILTER_ATTR.FILTER_BTN_CLASS} ${index === 0 ? FILTER_ATTR.ACTIVE_FILTER_CLASS : ``}">
       ${label}
-      ${name !== FilterConfig.ALL.name ? `<span class="${FILTER_BTN_CLASS}-count">${count}</span>` : ``}
+      ${name !== FilterConfig.ALL.name ? `<span class="${FILTER_ATTR.FILTER_BTN_CLASS}-count">${count}</span>` : ``}
   </a>`
 );
 
@@ -77,7 +81,7 @@ const createFiltersTemplate = (filters) => (
     <div class="main-navigation__items">
       ${filters.map(createFilterMarkup).join(`\n`)}
     </div>
-    <a href="#${STATS_BTN_NAME}" class="${STATS_BTN_CLASS}">Stats</a>
+    <a href="#${FILTER_ATTR.STATS_BTN_NAME}" class="${FILTER_ATTR.STATS_BTN_CLASS}">Stats</a>
   </nav>`
 );
 
@@ -119,7 +123,7 @@ export default class Filter extends AbstractSmartComponent {
    */
   setFilterChangeHandler(handler) {
     this.getElement()
-      .querySelectorAll(`.${FILTER_BTN_CLASS}`)
+      .querySelectorAll(`.${FILTER_ATTR.FILTER_BTN_CLASS}`)
       .forEach(
           (item) => item.addEventListener(`click`, (event) => {
             event.preventDefault();
@@ -138,7 +142,7 @@ export default class Filter extends AbstractSmartComponent {
    */
   setStatisticsViewHandler(handler) {
     this.getElement()
-      .querySelector(`.${STATS_BTN_CLASS}`)
+      .querySelector(`.${FILTER_ATTR.STATS_BTN_CLASS}`)
       .addEventListener(`click`, () => {
         this._activateNavigationBtn(`stats`);
         handler();
@@ -158,11 +162,11 @@ export default class Filter extends AbstractSmartComponent {
    * Деактивирует все кнопки навигации
    * @private
    */
-  _deactivateNavigationBtns() {
+  _deactivateNavigationButtons() {
     this.getElement()
-      .querySelectorAll(`.${FILTER_BTN_CLASS},.${STATS_BTN_CLASS}`)
+      .querySelectorAll(`.${FILTER_ATTR.FILTER_BTN_CLASS},.${FILTER_ATTR.STATS_BTN_CLASS}`)
       .forEach((btn) => {
-        btn.classList.remove(ACTIVE_FILTER_CLASS);
+        btn.classList.remove(FILTER_ATTR.ACTIVE_FILTER_CLASS);
       });
   }
 
@@ -172,13 +176,13 @@ export default class Filter extends AbstractSmartComponent {
    * @private
    */
   _activateNavigationBtn(activeBtnName) {
-    this._deactivateNavigationBtns();
+    this._deactivateNavigationButtons();
     this.getElement()
-      .querySelectorAll(`.${FILTER_BTN_CLASS},.${STATS_BTN_CLASS}`)
+      .querySelectorAll(`.${FILTER_ATTR.FILTER_BTN_CLASS},.${FILTER_ATTR.STATS_BTN_CLASS}`)
       .forEach((btn) => {
         const btnName = btn.getAttribute(`href`).slice(1);
         if (btnName === activeBtnName) {
-          btn.classList.add(ACTIVE_FILTER_CLASS);
+          btn.classList.add(FILTER_ATTR.ACTIVE_FILTER_CLASS);
         }
       });
   }

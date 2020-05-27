@@ -104,7 +104,7 @@ export default class Sort extends AbstractComponent {
   setCurrentSortType(sortType) {
     this._currentSortType = sortType;
 
-    this._deactivateSortBtns();
+    this._deactivateSortButtons();
     this._activateSortBtn(sortType);
   }
 
@@ -114,8 +114,8 @@ export default class Sort extends AbstractComponent {
    * @private
    */
   _activateSortBtn(sortType) {
-    const sortBtns = this.getElement().querySelectorAll(`.sort__button`);
-    sortBtns.forEach((btn) => {
+    const sortButtons = this.getElement().querySelectorAll(`.sort__button`);
+    sortButtons.forEach((btn) => {
       if (btn.dataset.sortType === sortType) {
         btn.classList.add(SORT_ACTIVE_CLASS);
       }
@@ -125,9 +125,9 @@ export default class Sort extends AbstractComponent {
   /**
    * Снимает класс "sort__button--active" со всех кнопок сортировки
    */
-  _deactivateSortBtns() {
-    const sortBtns = this.getElement().querySelectorAll(`.sort__button`);
-    sortBtns.forEach((btn) => {
+  _deactivateSortButtons() {
+    const sortButtons = this.getElement().querySelectorAll(`.sort__button`);
+    sortButtons.forEach((btn) => {
       btn.classList.remove(SORT_ACTIVE_CLASS);
     });
   }

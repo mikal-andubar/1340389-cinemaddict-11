@@ -42,19 +42,22 @@ const createMovieCardTemplate = (movie) => {
 
   const displayDate = formatDate(releaseDate);
   const displayDuration = formatDuration(duration);
+  const displayRating = rating.toFixed(1);
 
   const watchlistBtn = createButtonMarkup(MOVIE_BUTTON.WATCHLIST, isInWatchlist);
   const watchedBtn = createButtonMarkup(MOVIE_BUTTON.WATCHED, isWatched);
   const favoriteBtn = createButtonMarkup(MOVIE_BUTTON.FAVORITE, isFavorite);
 
+  const displayGenre = genres.slice(0, 1).pop() ? genres.slice(0, 1).pop() : ``;
+
   return (
     `<article class="film-card">
       <h3 class="film-card__title">${title}</h3>
-      <p class="film-card__rating">${rating}</p>
+      <p class="film-card__rating">${displayRating}</p>
       <p class="film-card__info">
         <span class="film-card__year">${displayDate}</span>
         <span class="film-card__duration">${displayDuration}</span>
-        <span class="film-card__genre">${genres[0]}</span>
+        <span class="film-card__genre">${displayGenre}</span>
       </p>
       <img src="${poster}" alt="" class="film-card__poster">
       <p class="film-card__description">${clipText(description, 140)}</p>
@@ -81,7 +84,7 @@ export default class MovieCard extends AbstractComponent {
 
     this._movie = movie;
 
-    this.setMovieCardBtnsHandler = this.setMovieCardBtnsHandler.bind(this);
+    this.setMovieCardButtonsHandler = this.setMovieCardButtonsHandler.bind(this);
   }
 
   /**
@@ -96,7 +99,7 @@ export default class MovieCard extends AbstractComponent {
    * Подписывает кнопки на карточке фильма на универсальный обработчик клика
    * @param {function} handler
    */
-  setMovieCardBtnsHandler(handler) {
+  setMovieCardButtonsHandler(handler) {
     Object.values(MOVIE_BUTTON).forEach((btnName) => {
       this.getElement()
         .querySelector(`.film-card__controls-item--${MovieCardButton[btnName].name}`)

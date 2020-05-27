@@ -1,6 +1,7 @@
 import {FilterConfig} from "../config";
 
 import {getMoviesByFilter} from "../utils/filter";
+import {findObjectIndexInArrayById} from "../utils/common";
 
 /**
  * Модель данных для списка фильмов
@@ -40,7 +41,7 @@ export default class Movies {
    * @return {boolean}
    */
   updateMovie(newData) {
-    const index = this._movies.findIndex((movie) => movie.id === newData.id);
+    const index = findObjectIndexInArrayById(this._movies, newData.id);
 
     if (index === -1) {
       return false;
